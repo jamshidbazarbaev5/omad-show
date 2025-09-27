@@ -97,3 +97,23 @@ export const useNextPrize = () => {
     },
   });
 };
+
+// Activate Game API
+export const useActivateGame = () => {
+  return useMutation<void, Error, number>({
+    mutationFn: async (gameId: number) => {
+      const response = await api.post(`${GAME_URL}${gameId}/activate/`);
+      return response.data;
+    },
+  });
+};
+
+// Lock Game API
+export const useLockGame = () => {
+  return useMutation<void, Error, number>({
+    mutationFn: async (gameId: number) => {
+      const response = await api.post(`${GAME_URL}${gameId}/lock/`);
+      return response.data;
+    },
+  });
+};

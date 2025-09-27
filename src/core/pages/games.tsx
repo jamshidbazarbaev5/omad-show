@@ -1,12 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ResourceTable } from "../helpers/ResourceTable";
-import { useGetGames, useDeleteGame } from "../api/game";
+import {
+  useGetGames,
+  useDeleteGame,
+  useActivateGame,
+  useLockGame,
+} from "../api/game";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
 import type { Game } from "../api/types";
-import { Play } from "lucide-react";
+import { Play, Lock, Unlock, Edit, Trash2, MoreVertical } from "lucide-react";
 import { Button } from "../../components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 
 export default function GamesPage() {
   const navigate = useNavigate();
@@ -14,6 +26,32 @@ export default function GamesPage() {
   const { data: currentUser } = useCurrentUser();
   const { data: gamesData, isLoading, refetch } = useGetGames();
   const { mutate: deleteGame } = useDeleteGame();
+  const { mutate: activateGame } = useActivateGame();
+  const { mutate: lockGame } = useLockGame();
+
+  const handleActivateGame = (gameId: number) => {
+    activateGame(gameId, {
+      onSuccess: () => {
+        toast.success("Game activated successfully");
+        refetch();
+      },
+      onError: () => {
+        toast.error("Failed to activate game");
+      },
+    });
+  };
+
+  const handleLockGame = (gameId: number) => {
+    lockGame(gameId, {
+      onSuccess: () => {
+        toast.success("Game locked successfully");
+        refetch();
+      },
+      onError: () => {
+        toast.error("Failed to lock game");
+      },
+    });
+  };
 
   const isSuperAdmin = currentUser?.role === "superadmin";
   // const userStoreId = currentUser?.store_read?.id;
@@ -162,15 +200,45 @@ export default function GamesPage() {
           onDelete={handleDelete}
           onAdd={handleCreate}
           actions={(game) => (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStartGame(game)}
-              className="mr-2"
-            >
-              <Play className="h-4 w-4 mr-1" />
-              Play
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => handleStartGame(game)}>
+                  <Play className="h-4 w-4 mr-2" />
+                  Play
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleEdit(game)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleActivateGame(game.id)}
+                  className="text-green-600 hover:text-green-700"
+                >
+                  <Unlock className="h-4 w-4 mr-2" />
+                  Activate
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleLockGame(game.id)}
+                  className="text-orange-600 hover:text-orange-700"
+                >
+                  <Lock className="h-4 w-4 mr-2" />
+                  Lock
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => handleDelete(game.id)}
+                  variant="destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         />
       )}
