@@ -23,12 +23,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { useGetClients, useDeleteClient } from "../api/client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
 import type { Client } from "../api/types";
+import { CreatePurchaseDialog } from "../components/CreatePurchaseDialog";
 
 export default function ClientsPage() {
   const navigate = useNavigate();
@@ -63,7 +69,7 @@ export default function ClientsPage() {
 
   // Check if user has permission to edit/delete clients
   const canManageClients =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
+    currentUser?.role === "store_admin" || currentUser?.role === "seller"  || currentUser?.role === "superadmin";
 
   if (!canViewClients) {
     return (
@@ -97,7 +103,7 @@ export default function ClientsPage() {
       onSuccess: () => {
         toast.success(
           t("messages.success.deleted", { item: t("navigation.clients") }) ||
-            "Client deleted successfully"
+            "Client deleted successfully",
         );
         refetch();
       },
@@ -105,7 +111,7 @@ export default function ClientsPage() {
         console.error("Delete client error:", error);
         toast.error(
           t("messages.error.delete", { item: t("navigation.clients") }) ||
-            "Failed to delete client"
+            "Failed to delete client",
         );
       },
     });
@@ -144,7 +150,6 @@ export default function ClientsPage() {
           <h1 className="text-2xl font-bold">
             {t("navigation.clients") || "Clients"}
           </h1>
-
         </div>
         {canCreateClients && (
           <Button onClick={() => navigate("/clients/create")}>
@@ -206,12 +211,12 @@ export default function ClientsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("forms.full_name") || "Full Name"}</TableHead>
-                    <TableHead>{t("forms.phone_number") || "Phone Number"}</TableHead>
-                    {canManageClients && (
-                      <TableHead className="text-right">
-                        {t("forms.actions") || "Actions"}
-                      </TableHead>
-                    )}
+                    <TableHead>
+                      {t("forms.phone_number") || "Phone Number"}
+                    </TableHead>
+                    <TableHead className="text-right">
+                      {t("forms.actions") || "Actions"}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -221,53 +226,59 @@ export default function ClientsPage() {
                         {client.full_name}
                       </TableCell>
                       <TableCell>{client.phone_number}</TableCell>
-                      {canManageClients && (
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEdit(client)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  disabled={isDeleting}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    {t("dialogs.confirm_delete.title") ||
-                                      "Are you sure?"}
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    {t("dialogs.confirm_delete.client") ||
-                                      `This will permanently delete the client "${client.full_name}". This action cannot be undone.`}
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>
-                                    {t("actions.cancel") || "Cancel"}
-                                  </AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDelete(client)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <CreatePurchaseDialog
+                            client={client}
+                            onSuccess={() => refetch()}
+                          />
+                          {canManageClients && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(client)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={isDeleting}
                                   >
-                                    {t("actions.delete") || "Delete"}
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </TableCell>
-                      )}
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      {t("dialogs.confirm_delete.title") ||
+                                        "Are you sure?"}
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {t("dialogs.confirm_delete.client") ||
+                                        `This will permanently delete the client "${client.full_name}". This action cannot be undone.`}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      {t("actions.cancel") || "Cancel"}
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDelete(client)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      {t("actions.delete") || "Delete"}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -285,14 +296,16 @@ export default function ClientsPage() {
                 }) ||
                   `Showing ${(currentPage - 1) * pageSize + 1} to ${Math.min(
                     currentPage * pageSize,
-                    totalCount
+                    totalCount,
                   )} of ${totalCount} results`}
               </p>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
                   disabled={currentPage === 1}
                 >
                   {t("pagination.previous") || "Previous"}

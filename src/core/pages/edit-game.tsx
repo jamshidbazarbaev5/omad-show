@@ -1,22 +1,22 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { PrizeForm } from "../components/PrizeForm";
 import { toast } from "sonner";
-import { useCreateGame } from "../api/game";
+import { useGetGame, useUpdateGame } from "../api/game";
 import { useGetStores } from "../api/store";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import type { Prize } from "../api/types";
 
 /**
- * Game Creation Form Data Structure
+ * Game Edit Form Data Structure
  *
- * When submitted, this form creates a FormData object with the following structure:
+ * Similar to create, but includes existing data and updates:
  *
  * Basic game fields:
- * - name: string (required, empty string if not provided)
- * - description: string (required)
+ * - name: string
+ * - description: string
  * - store: number (store ID)
  *
  * Prize fields (array format):
@@ -24,32 +24,7 @@ import type { Prize } from "../api/types";
  * - prizes[0]type: "item" | "money"
  * - prizes[0]quantity: number
  * - prizes[0]ordering: number (1-based)
- * - prizes[0]image: File (optional)
- * - prizes[1]name: string
- * - prizes[1]type: "item" | "money"
- * - etc...
- *
- * Example FormData entries:
- * name: "Summer Contest"
- * description: "Exciting summer game for customers"
- * store: "1"
- * prizes[0]name: "iPhone 15"
- * prizes[0]type: "item"
- * prizes[0]quantity: "1"
- * prizes[0]ordering: "1"
- * prizes[0]image: [File object]
- * prizes[1]name: "Cash Prize"
- * prizes[1]type: "money"
- * prizes[1]quantity: "5"
- * prizes[1]ordering: "2"
- *
- * Features:
- * - No start/end dates (removed as requested)
- * - Full translation support (Russian & Karakalpak)
- * - Drag-and-drop prize reordering
- * - File upload for prize images
- * - Real-time form validation
- * - Prize type selection (item/money)
+ * - prizes[0]image: File (optional, only if changed)
  */
 
 interface GameFormData {
@@ -58,11 +33,13 @@ interface GameFormData {
   store?: number;
 }
 
-export default function CreateGamePage() {
+export default function EditGamePage() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { data: currentUser, isLoading: userLoading } = useCurrentUser();
   const { data: storesData, isLoading: storesLoading } = useGetStores();
+  const { data: gameData, isLoading: gameLoading } = useGetGame(Number(id));
   const [prizes, setPrizes] = useState<Prize[]>([]);
 
   // Handle stores data structure (could be array or paginated response)
@@ -70,7 +47,7 @@ export default function CreateGamePage() {
     ? storesData
     : storesData?.results || [];
 
-  const { mutate: createGame, isPending: isCreating } = useCreateGame();
+  const { mutate: updateGame, isPending: isUpdating } = useUpdateGame();
 
   const isSuperAdmin = currentUser?.role === "superadmin";
   const userStore = currentUser?.store;
@@ -79,6 +56,7 @@ export default function CreateGamePage() {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<GameFormData>({
     defaultValues: {
       name: "",
@@ -86,6 +64,22 @@ export default function CreateGamePage() {
       store: isSuperAdmin ? undefined : userStore,
     },
   });
+
+  // Set form data when game loads
+  useEffect(() => {
+    if (gameData) {
+      reset({
+        name: gameData.name,
+        description: gameData.description,
+        store: gameData.store,
+      });
+
+      // Set prizes data
+      if (gameData.prizes) {
+        setPrizes(gameData.prizes);
+      }
+    }
+  }, [gameData, reset]);
 
   const onSubmit = (data: GameFormData) => {
     // Validate prizes
@@ -130,33 +124,48 @@ export default function CreateGamePage() {
 
     // Add prizes data
     prizes.forEach((prize, index) => {
+      // Include prize ID if it exists (for updating existing prizes)
+      if (prize.id) {
+        formData.append(`prizes[${index}]id`, prize.id.toString());
+      }
+
       formData.append(`prizes[${index}]name`, prize.name);
       formData.append(`prizes[${index}]type`, prize.type);
       formData.append(`prizes[${index}]quantity`, prize.quantity.toString());
       formData.append(`prizes[${index}]ordering`, prize.ordering.toString());
 
+      // Only append image if it's a new File (not a URL string)
       if (prize.image && prize.image instanceof File) {
         formData.append(`prizes[${index}]image`, prize.image);
       }
     });
 
-    createGame(formData, {
-      onSuccess: () => {
-        toast.success(
-          t("messages.success.game_created") || "Game created successfully",
-        );
-        navigate("/games");
+    updateGame(
+      { formData, id: Number(id) },
+      {
+        onSuccess: () => {
+          toast.success(
+            t("messages.success.game_updated") || "Game updated successfully",
+          );
+          navigate("/games");
+        },
+        onError: (error) => {
+          console.error("Error updating game:", error);
+          toast.error(
+            t("messages.error.update_game") || "Failed to update game",
+          );
+        },
       },
-      onError: (error) => {
-        console.error("Error creating game:", error);
-        toast.error(t("messages.error.create_game") || "Failed to create game");
-      },
-    });
+    );
   };
 
-  if (userLoading) {
+  if (userLoading || gameLoading) {
     return (
-      <div className="flex justify-center items-center h-64">Loading...</div>
+      <div className="flex justify-center items-center h-64">
+        <div className="text-gray-500">
+          {t("forms.loading") || "Loading..."}
+        </div>
+      </div>
     );
   }
 
@@ -165,14 +174,32 @@ export default function CreateGamePage() {
     return null;
   }
 
+  if (!gameData) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="max-w-md mx-auto text-center">
+          <p className="text-gray-600 mb-4">
+            {t("messages.error.game_not_found") || "Game not found"}
+          </p>
+          <button
+            onClick={() => navigate("/games")}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            {t("buttons.go_back") || "Go Back"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // If user is not superadmin and has no store, show error
   if (!isSuperAdmin && !userStore) {
     return (
       <div className="container mx-auto py-6">
         <div className="max-w-md mx-auto text-center">
           <p className="text-gray-600 mb-4">
-            {t("messages.error.contact_admin") ||
-              "You need to be assigned to a store to create games. Please contact your administrator."}
+            {t("messages.contact_admin") ||
+              "You need to be assigned to a store to edit games. Please contact your administrator."}
           </p>
           <button
             onClick={() => navigate(-1)}
@@ -189,7 +216,7 @@ export default function CreateGamePage() {
     <div className="container mx-auto py-6 max-w-4xl">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">
-          {t("messages.create_game") || "Create New Game"}
+          {t("messages.edit_game") || "Edit Game"}
         </h1>
         <button
           onClick={() => navigate(-1)}
@@ -215,7 +242,9 @@ export default function CreateGamePage() {
                 </label>
                 {storesLoading ? (
                   <div className="flex justify-center items-center h-10">
-                    <div className="text-gray-500">Loading stores...</div>
+                    <div className="text-gray-500">
+                      {t("forms.loading") || "Loading stores..."}
+                    </div>
                   </div>
                 ) : (
                   <select
@@ -223,7 +252,7 @@ export default function CreateGamePage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">
-                      {t("placeholders.select_store") || "Выберите магазин"}
+                      {t("placeholders.select_store") || "Select a store"}
                     </option>
                     {stores.map((store) => (
                       <option key={store.id} value={store.id}>
@@ -248,9 +277,7 @@ export default function CreateGamePage() {
               <input
                 type="text"
                 {...register("name", { required: true })}
-                placeholder={
-                  t("placeholders.game_name") || "Введите название игры"
-                }
+                placeholder={t("placeholders.game_name") || "Enter game name"}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               {errors.name && (
@@ -270,7 +297,7 @@ export default function CreateGamePage() {
                 {...register("description", { required: true })}
                 rows={4}
                 placeholder={
-                  t("placeholders.game_description") || "Введите описание игры"
+                  t("placeholders.game_description") || "Enter game description"
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -295,24 +322,24 @@ export default function CreateGamePage() {
             type="button"
             onClick={() => navigate(-1)}
             className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-            disabled={isCreating}
+            disabled={isUpdating}
           >
             {t("buttons.cancel") || "Cancel"}
           </button>
           <button
             type="submit"
-            disabled={isCreating || prizes.length === 0}
+            disabled={isUpdating || prizes.length === 0}
             className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {isCreating ? (
+            {isUpdating ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                {t("buttons.creating") || "Creating..."}
+                {t("buttons.saving") || "Saving..."}
               </>
             ) : (
               <>
-                <span>✓</span>
-                {t("buttons.create_game") || "Create Game"}
+                <span>💾</span>
+                {t("buttons.update") || "Update Game"}
               </>
             )}
           </button>

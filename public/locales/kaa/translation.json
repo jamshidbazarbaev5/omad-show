@@ -36,13 +36,22 @@
     "hex_code": "Hex kod",
     "title": "Taqırıp",
     "game_type": "Oyın túri",
+    "game_name": "Oyın atı",
+    "game_description": "Oyın sıpatlama",
+    "game_details": "Oyın detailları",
+    "prizes": "Sıylıqlar",
+    "prize_name": "Sıylıq atı",
+    "prize_type": "Sıylıq túri",
+    "prize_image": "Sıylıq súwreti",
+    "prize_order": "Sıylıq #{{order}}",
     "max_participants": "Maksimal qatnaswshılar",
     "start_date": "Baslanıw kúni",
     "end_date": "Aqlasıw kúni",
-    "prize_name": "Sıylıq atı",
     "prize_description": "Sıylıq sıpatlama",
     "prize_value": "Sıylıq qádiri",
     "quantity": "Sanı",
+    "qty_label": "Sanı: {{quantity}}",
+    "summary": "Jıyıntıq",
     "min_amount": "Minimal summa",
     "max_amount": "Maksimal summa",
     "bonus_percentage": "Bonus payızı",
@@ -66,6 +75,9 @@
     "enter_address": "Mánzildi kiritińiz",
     "enter_hex_code": "Hex kodnı kiritińiz",
     "enter_title": "Taqırıpnı kiritińiz",
+    "prize_name": "Sıylıq atın kiritińiz",
+    "game_name": "Oyın atın kiritińiz",
+    "game_description": "Oyın sıpatlamasın kiritińiz",
     "enter_prize_name": "Sıylıq atın kiritińiz",
     "enter_prize_description": "Sıylıq sıpatlamasın kiritińiz",
     "enter_prize_value": "Sıylıq qádirin kiritińiz",
@@ -81,7 +93,10 @@
     "search_prize": "Sıylıqnı izlew...",
     "search_client": "Kliyentni izlew...",
     "search_color": "Túsni izlew...",
-    "select": "Saylańız..."
+    "select": "Saylańız...",
+    "select_store": "Dúkannı saylańız",
+    "select_game": "Oyınnı saylańız",
+    "select_prize_type": "Sıylıq túrin saylańız"
   },
   "roles": {
     "superadmin": "Super administrator",
@@ -105,7 +120,11 @@
     "confirm": "Tastıyllaw",
     "reset": "Qayta ornatıw",
     "sending": "Jiberilwde...",
-    "saving": "Saqlawda..."
+    "saving": "Saqlawda...",
+    "creating": "Jaratılwda...",
+    "create_game": "Oyın jaratıw",
+    "edit_game": "Oyınnı ózgertiw",
+    "go_back": "Qaytiw"
   },
   "messages": {
     "success": {
@@ -113,7 +132,9 @@
       "updated": "{{item}} jetistikli jańartıldı",
       "deleted": "{{item}} jetistikli óshirildi",
       "saved": "Ma'lıwmatlar jetistikli saqlaldı",
-      "login": "Kiriw jetistikli orınlandı"
+      "login": "Kiriw jetistikli orınlandı",
+      "game_created": "Oyın jetistikli jaratıldı",
+      "game_updated": "Oyın jetistikli jańartıldı"
     },
     "error": {
       "create": "{{item}} jaratıwda qátelik",
@@ -128,7 +149,9 @@
       "required_field": "Bul maýdan miyadli",
       "invalid_format": "Nádurıs ma'lıwmat formatı",
       "network_error": "Taraq qáteligi. Internet baylanısın tekserip kóriń",
-      "server_error": "Server qáteligi. Keyinrek sınap kóriń"
+      "server_error": "Server qáteligi. Keyinrek sınap kóriń",
+      "delete": "Oyınnı óshiriw múmkin bolmadı",
+      "game_not_found": "Oyın tabılmadı"
     },
     "confirmation": {
       "delete": "Siz bul elementni óshirgińiz kelgenine shenimińiz barm?",
@@ -139,11 +162,29 @@
     "loading": "Júkleniwde...",
     "no_data": "Ma'lıwmatlar joq",
     "empty_list": "Dizim bos",
-
     "all_bonus_ranges": "Barlıq dúkanlar ushın bonus diapazonların boshqarıw",
     "store_bonus_ranges": "Sizińiz dúkan ushın bonus diapazonları",
     "no_bonus_ranges": "Bonus diapazonları tabılmadı",
-    "success": "Jetistikli!"
+    "success": "Jetistikli!",
+    "create_game": "Oyın jaratıw",
+    "edit_game": "Oyınnı ózgertiw",
+    "no_games": "Oyınlar tabılmadı",
+    "no_prizes": "Sıylıqlar qosılmadı",
+    "game_created": "Oyın jetistikli jaratıldı",
+    "game_updated": "Oyın jetistikli jańartıldı",
+    "prize_instructions_title": "Sıylıqlardı boshqarıw kéńesleri:",
+    "drag_to_reorder": "⋮⋮ járdeminde sıylıqlardı súyrew arqalı reti ózgertiń",
+    "prize_ordering": "Sıylıq reti oyındaǧı ketketlikti belgileys",
+    "required_fields": "Atı, túri hám sanı hárbir sıylıq ushın miyadli",
+    "image_selected": "Súwret saylaldı: ",
+    "contact_admin": "Oyınlardı jaratıw ushın dúkanga tayınlanıwıńız kerek. Administratorǧa murájaat etiń.",
+    "error": {
+      "no_prizes": "Keminde bir sıylıq kerek",
+      "prize_name_required": "Sıylıq #{{index}} atı miyadli",
+      "prize_quantity_invalid": "Sıylıq #{{index}} sanı keminde 1 bolıwı kerek",
+      "create_game": "Oyınnı jaratıw múmkin bolmadı",
+      "update_game": "Oyınnı jańartıw múmkin bolmadı"
+    }
   },
   "auth": {
     "login_title": "Akkuntqa kiriw",
@@ -164,6 +205,12 @@
     "total_prizes": "Barlıq sıylıqlar",
     "total_clients": "Barlıq kliyentler"
   },
+  "prize_types": {
+    "item": "Buyım",
+    "money": "Pul",
+    "items": "buyımlar",
+    "money_prizes": "pul sıylıqları"
+  },
   "game_types": {
     "spin_wheel": "Táleshi donalogı",
     "scratch_card": "Loteriya bileti",
@@ -176,6 +223,10 @@
     "pending": "Kútiw hálatında",
     "completed": "Aqlasqan",
     "cancelled": "Biykarlanǧan"
+  },
+  "summary": {
+    "total_prizes": "Barlıq sıylıqlar: {{count}}",
+    "prize_breakdown": "Sıylıq túrleri: "
   },
   "common": {
     "yes": "Awa",
@@ -202,7 +253,10 @@
     "min_length": "Keminde {{count}} simvol",
     "max_length": "Kópinde {{count}} simvol",
     "number": "Sandı kiritińiz",
-    "positive_number": "Onımlı sandı kiritińiz"
+    "positive_number": "Onımlı sandı kiritińiz",
+    "game_name_required": "Oyın atı miyadli",
+    "description_required": "Sıpatlama miyadli",
+    "store_required": "Dúkannı sayllaw miyadli"
   },
   "currency": {
     "set_rate": "Walýuta kursın belgilew",
@@ -215,6 +269,10 @@
   "actions": {
     "create_bonus_range": "Bonus diapazonı jaratıw",
     "create_first_bonus_range": "Birinshi bonus diapazonın jaratıw",
-    "retry": "Qayta sınaw"
+    "retry": "Qayta sınaw",
+    "add_prize": "Sıylıq qosıw",
+    "add_first_prize": "Birinshi sıylıqnı qosıw",
+    "create_first_game": "Birinshi oyınnı jaratıw",
+    "remove_prize": "Sıylıqnı óshiriw"
   }
 }

@@ -2,16 +2,12 @@ import {
   ShoppingBag,
   User2,
   Users,
-  List as ListView,
   Menu,
   X,
-  PlusCircle,
   LogOut,
   User,
   ChevronDown,
   Trophy,
-  Gift,
-  DollarSign,
   ShoppingCart,
   type LucideIcon,
 } from "lucide-react";
@@ -50,8 +46,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     navigate("/login");
   };
 
-
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -82,130 +76,56 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [location.pathname]);
 
   const navItems: NavItem[] = (() => {
-    // Base navigation items that all users can see
-    const baseItems: NavItem[] = [
-      {
-        icon: ShoppingBag,
-        label: t("navigation.stores"),
-        id: "stores",
-        submenu: [
-          {
-            icon: ListView,
-            label: t("navigation.viewStores"),
-            href: "/stores",
-          },
-          {
-            icon: PlusCircle,
-            label: t("navigation.createStore"),
-            href: "/create-store",
-          },
-        ],
-      },
-      {
-        icon: User2,
-        label: t("navigation.employees"),
-        id: "employees",
-        submenu: [
-          {
-            icon: ListView,
-            label: t("navigation.viewEmployees"),
-            href: "/employees",
-          },
-          {
-            icon: PlusCircle,
-            label: t("navigation.createEmployee"),
-            href: "/create-employee",
-          },
-        ],
-      },
-      {
-        icon: Trophy,
-        label: t("navigation.games"),
-        id: "games",
-        submenu: [
-          {
-            icon: ListView,
-            label: t("navigation.viewGames"),
-            href: "/games",
-          },
-          {
-            icon: PlusCircle,
-            label: t("navigation.createGame"),
-            href: "/games/create",
-          },
-        ],
-      },
-      {
-        icon: Gift,
-        label: t("navigation.prizes") || "Prizes",
-        id: "prizes",
-        submenu: [
-          {
-            icon: ListView,
-            label: t("navigation.viewPrizes") || "View Prizes",
-            href: "/prizes",
-          },
-          {
-            icon: PlusCircle,
-            label: t("navigation.createPrize") || "Create Prize",
-            href: "/prizes/create",
-          },
-        ],
-      },
-      {
-        icon: DollarSign,
-        label: t("navigation.bonus_ranges") || "Bonus Ranges",
-        id: "bonus-ranges",
-        submenu: [
-          {
-            icon: ListView,
-            label: t("navigation.viewBonusRanges") || "View Bonus Ranges",
-            href: "/bonus-ranges",
-          },
-          {
-            icon: PlusCircle,
-            label: t("navigation.createBonusRange") || "Create Bonus Range",
-            href: "/bonus-ranges/create",
-          },
-        ],
-      },
+    // Main navigation items - 3 primary sections (direct links)
+    const mainItems: NavItem[] = [
       {
         icon: Users,
         label: t("navigation.clients") || "Clients",
-        id: "clients",
-        submenu: [
-          {
-            icon: ListView,
-            label: t("navigation.viewClients") || "View Clients",
-            href: "/clients",
-          },
-          {
-            icon: PlusCircle,
-            label: t("navigation.createClient") || "Create Client",
-            href: "/clients/create",
-          },
-        ],
+        href: "/clients",
       },
       {
         icon: ShoppingCart,
         label: t("navigation.purchases") || "Purchases",
-        id: "purchases",
+        href: "/purchases",
+      },
+      {
+        icon: Trophy,
+        label: t("navigation.games") || "Games",
+        href: "/games",
+      },
+    ];
+
+    // Settings section - containing all other routes
+    const settingsItems: NavItem[] = [
+      {
+        icon: Menu,
+        label: t("navigation.settings") || "Settings",
+        id: "settings",
         submenu: [
           {
-            icon: ListView,
-            label: t("navigation.viewPurchases") || "View Purchases",
-            href: "/purchases",
+            icon: ShoppingBag,
+            label: t("navigation.stores"),
+            href: "/stores",
           },
+
           {
-            icon: PlusCircle,
-            label: t("navigation.createPurchase") || "Create Purchase",
-            href: "/purchases/create",
+            icon: User2,
+            label: t("navigation.employees"),
+            href: "/employees",
           },
+
+          // {
+          //   icon: Gift,
+          //   label: t("navigation.prizes") || "Prizes",
+          //   href: "/prizes",
+          // },
+
+
         ],
       },
     ];
 
-    return baseItems;
+    return [...mainItems, ...settingsItems];
   })();
 
   return (
@@ -360,7 +280,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <div className="flex items-center gap-2">
                 {!isCollapsed && (
                   <div className="font-semibold text-sidebar-foreground">
-                  OmadShow
+                    OmadShow
                   </div>
                 )}
               </div>
@@ -496,8 +416,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 min-w-0 transition-all duration-300 overflow-x-auto ">
           <div className="h-full flex flex-col min-w-[320px]">
             <div className=" px-4 md:px-6 py-4 flex items-center justify-end gap-4 sticky top-0 z-30 border-b border-border">
-
-
               <div className="hidden md:flex items-center gap-2">
                 {/*<ThemeToggle />*/}
                 <LanguageSwitcher />

@@ -12,6 +12,7 @@ import EmployeesPage from "./core/pages/employees";
 import CreateEmployeePage from "./core/pages/create-employee";
 import GamesPage from "./core/pages/games";
 import CreateGamePage from "./core/pages/create-game";
+import EditGamePage from "./core/pages/edit-game";
 import PrizesPage from "./core/pages/prizes";
 import CreatePrizePage from "./core/pages/create-prize";
 import EditPrizePage from "./core/pages/edit-prize";
@@ -50,6 +51,7 @@ function App() {
             <Route path="/create-employee" element={<CreateEmployeePage />} />
             <Route path="/games" element={<GamesPage />} />
             <Route path="/games/create" element={<CreateGamePage />} />
+            <Route path="/games/:id/edit" element={<EditGamePage />} />
             <Route path="/prizes" element={<PrizesPage />} />
             <Route path="/prizes/create" element={<CreatePrizePage />} />
             <Route path="/prizes/:id/edit" element={<EditPrizePage />} />

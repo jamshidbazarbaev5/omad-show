@@ -20,10 +20,11 @@ import {
 } from "../../components/ui/select";
 import { useCreatePurchase } from "../api/purchases";
 import { useGetClients } from "../api/client";
+import { useGetStores } from "../api/store";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
 import type { CreatePurchaseData } from "../api/purchases";
-import type { Client } from "../api/types";
+import type { Client, Store } from "../api/types";
 
 export default function CreatePurchasePage() {
   const navigate = useNavigate();
@@ -34,15 +35,21 @@ export default function CreatePurchasePage() {
   const { data: clientsData, isLoading: isLoadingClients } = useGetClients({
     page_size: 100, // Get more clients for the dropdown
   });
+  const { data: storesData, isLoading: isLoadingStores } = useGetStores({
+    params: { page_size: 100 }, // Get more stores for the dropdown
+  });
   const { mutate: createPurchase } = useCreatePurchase();
 
   // Check if user has permission to create purchases
   const canCreatePurchases =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
+    currentUser?.role === "store_admin" ||
+    currentUser?.role === "seller" ||
+    currentUser?.role === "superadmin";
 
   const [formData, setFormData] = useState<CreatePurchaseData>({
     client: 0,
     amount: 0,
+    store: 0,
   });
 
   const [errors, setErrors] = useState<Partial<CreatePurchaseData>>({});
@@ -65,6 +72,10 @@ export default function CreatePurchasePage() {
     ? clientsData
     : clientsData?.results || [];
 
+  const stores = Array.isArray(storesData)
+    ? storesData
+    : storesData?.results || [];
+
   const validateForm = (): boolean => {
     const newErrors: Partial<CreatePurchaseData> = {};
 
@@ -74,6 +85,13 @@ export default function CreatePurchasePage() {
 
     if (!formData.amount || formData.amount <= 0) {
       newErrors.amount = 0;
+    }
+
+    if (
+      currentUser?.role === "superadmin" &&
+      (!formData.store || formData.store === 0)
+    ) {
+      newErrors.store = 0;
     }
 
     setErrors(newErrors);
@@ -92,7 +110,17 @@ export default function CreatePurchasePage() {
 
     setIsSubmitting(true);
 
-    createPurchase(formData, {
+    // Prepare payload - only include store for superadmin
+    const payload: CreatePurchaseData = {
+      client: formData.client,
+      amount: formData.amount,
+    };
+
+    if (currentUser?.role === "superadmin" && formData.store) {
+      payload.store = formData.store;
+    }
+
+    createPurchase(payload, {
       onSuccess: () => {
         toast.success(
           t("messages.success.created", { item: t("navigation.purchase") }) ||
@@ -145,7 +173,6 @@ export default function CreatePurchasePage() {
             <ShoppingCart className="h-6 w-6" />
             {t("actions.create") || "Create Purchase"}
           </h1>
-
         </div>
       </div>
 
@@ -202,6 +229,49 @@ export default function CreatePurchasePage() {
                   </p>
                 )}
               </div>
+
+              {/* Store Selection - Only for superadmin */}
+              {currentUser?.role === "superadmin" && (
+                <div className="space-y-2">
+                  <Label htmlFor="store">{t("forms.store") || "Store"} *</Label>
+                  <Select
+                    value={formData.store ? formData.store.toString() : ""}
+                    onValueChange={(value) =>
+                      handleInputChange("store", parseInt(value))
+                    }
+                    disabled={isLoadingStores}
+                  >
+                    <SelectTrigger
+                      className={errors.store ? "border-red-500" : ""}
+                    >
+                      <SelectValue
+                        placeholder={
+                          isLoadingStores
+                            ? t("forms.loading") || "Loading stores..."
+                            : t("placeholders.select_store") || "Select a store"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stores.map((store: Store) => (
+                        <SelectItem key={store.id} value={store.id.toString()}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{store.name}</span>
+                            <span className="text-sm text-muted-foreground">
+                              {store.address}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.store && (
+                    <p className="text-sm text-red-500">
+                      {t("forms.errors.store_required") || "Store is required"}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Amount */}
               <div className="space-y-2">

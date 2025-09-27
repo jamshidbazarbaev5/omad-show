@@ -58,16 +58,15 @@ export default function PurchasesPage() {
 
   // Check if user has permission to view purchases
   const canViewPurchases =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
+    currentUser?.role === "store_admin" || currentUser?.role === "seller" || currentUser?.role==='superadmin';
 
   // Check if user has permission to create purchases
   const canCreatePurchases =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
+    currentUser?.role === "store_admin" || currentUser?.role === "seller" || currentUser?.role==='superadmin';
 
   // Check if user has permission to edit/delete purchases
   const canManagePurchases =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
-
+    currentUser?.role === "store_admin" || currentUser?.role === "seller"|| currentUser?.role==='superadmin';
   if (!canViewPurchases) {
     return (
       <div className="container mx-auto py-6">

@@ -20,10 +20,11 @@ import {
 } from "../../components/ui/select";
 import { useGetPurchase, useUpdatePurchase } from "../api/purchases";
 import { useGetClients } from "../api/client";
+import { useGetStores } from "../api/store";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
 import type { UpdatePurchaseData } from "../api/purchases";
-import type { Client } from "../api/types";
+import type { Client, Store } from "../api/types";
 
 export default function EditPurchasePage() {
   const navigate = useNavigate();
@@ -42,15 +43,21 @@ export default function EditPurchasePage() {
   const { data: clientsData, isLoading: isLoadingClients } = useGetClients({
     page_size: 100, // Get more clients for the dropdown
   });
+  const { data: storesData, isLoading: isLoadingStores } = useGetStores({
+    params: { page_size: 100 }, // Get more stores for the dropdown
+  });
   const { mutate: updatePurchase } = useUpdatePurchase();
 
   // Check if user has permission to edit purchases
   const canEditPurchases =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
+    currentUser?.role === "store_admin" ||
+    currentUser?.role === "seller" ||
+    currentUser?.role === "superadmin";
 
   const [formData, setFormData] = useState<UpdatePurchaseData>({
     client: 0,
     amount: 0,
+    store: 0,
   });
 
   const [errors, setErrors] = useState<Partial<UpdatePurchaseData>>({});
@@ -59,6 +66,10 @@ export default function EditPurchasePage() {
   const clients = Array.isArray(clientsData)
     ? clientsData
     : clientsData?.results || [];
+
+  const stores = Array.isArray(storesData)
+    ? storesData
+    : storesData?.results || [];
 
   // Debug logs
   console.log("Purchase data:", purchase);
@@ -75,9 +86,10 @@ export default function EditPurchasePage() {
       console.log("Purchase ID exists:", purchase.id);
       console.log("Purchase client:", purchase.client);
 
-      const newFormData = {
+      const newFormData: UpdatePurchaseData = {
         client: 0,
         amount: 0,
+        store: 0,
       };
 
       // Set client ID
@@ -92,15 +104,20 @@ export default function EditPurchasePage() {
         console.log("Setting amount to:", newFormData.amount);
       }
 
+      // Set store ID for superadmin
+      if (
+        currentUser?.role === "superadmin" &&
+        purchase.store &&
+        purchase.store.id
+      ) {
+        newFormData.store = Number(purchase.store.id);
+        console.log("Setting store to:", newFormData.store);
+      }
+
       console.log("Final form data before setting:", newFormData);
       setFormData(newFormData);
-
-      // Force update after a short delay to ensure state is set
-      setTimeout(() => {
-        console.log("Current form data after timeout:", formData);
-      }, 100);
     }
-  }, [purchase]);
+  }, [purchase, currentUser?.role]);
 
   if (!canEditPurchases) {
     return (
@@ -147,6 +164,13 @@ export default function EditPurchasePage() {
       newErrors.amount = 0;
     }
 
+    if (
+      currentUser?.role === "superadmin" &&
+      (!formData.store || formData.store === 0)
+    ) {
+      newErrors.store = 0;
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -163,8 +187,18 @@ export default function EditPurchasePage() {
 
     setIsSubmitting(true);
 
+    // Prepare payload - only include store for superadmin
+    const payload: UpdatePurchaseData = {
+      client: formData.client,
+      amount: formData.amount,
+    };
+
+    if (currentUser?.role === "superadmin" && formData.store) {
+      payload.store = formData.store;
+    }
+
     updatePurchase(
-      { id: purchaseId, data: formData },
+      { id: purchaseId, data: payload },
       {
         onSuccess: () => {
           toast.success(
@@ -303,6 +337,55 @@ export default function EditPurchasePage() {
                   </p>
                 )}
               </div>
+
+              {/* Store Selection - Only for superadmin */}
+              {currentUser?.role === "superadmin" && (
+                <div className="space-y-2">
+                  <Label htmlFor="store">{t("forms.store") || "Store"} *</Label>
+                  <Select
+                    value={
+                      formData.store &&
+                      stores.length > 0 &&
+                      stores.some((s: Store) => s.id === formData.store)
+                        ? formData.store.toString()
+                        : ""
+                    }
+                    onValueChange={(value) =>
+                      handleInputChange("store", parseInt(value))
+                    }
+                    disabled={isLoadingStores}
+                  >
+                    <SelectTrigger
+                      className={errors.store ? "border-red-500" : ""}
+                    >
+                      <SelectValue
+                        placeholder={
+                          isLoadingStores
+                            ? t("forms.loading") || "Loading stores..."
+                            : t("placeholders.select_store") || "Select a store"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stores.map((store: Store) => (
+                        <SelectItem key={store.id} value={store.id.toString()}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{store.name}</span>
+                            <span className="text-sm text-muted-foreground">
+                              {store.address}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.store && (
+                    <p className="text-sm text-red-500">
+                      {t("forms.errors.store_required") || "Store is required"}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Amount */}
               <div className="space-y-2">

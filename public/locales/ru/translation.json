@@ -11,6 +11,7 @@
     "viewEmployees": "Просмотр сотрудников",
     "createEmployee": "Добавить сотрудника",
     "games": "Игры",
+    "settings": "Настройки",
 
     "viewGames": "Просмотр игр",
     "createGame": "Создать игру",
@@ -35,8 +36,14 @@
     "purchase_details": "Детали покупки",
     "image": "Изображения",
     "game": "Игра",
-    "game_name": "Название игра",
-    "game_description": "Описание игри",
+    "game_name": "Название игры",
+    "game_description": "Описание игры",
+    "game_details": "Детали игры",
+    "prizes": "Призы",
+    "prize_name": "Название приза",
+    "prize_type": "Тип приза",
+    "prize_image": "Изображение приза",
+    "prize_order": "Приз #{{order}}",
     "store_name": "Название магазина",
     "store_address": "Адресс",
     "phone_number": "Номер телефона",
@@ -58,6 +65,8 @@
     "prize_description": "Описание приза",
     "prize_value": "Стоимость приза",
     "quantity": "Количество",
+    "qty_label": "Кол-во: {{quantity}}",
+    "summary": "Сводка",
     "min_amount": "Минимальная сумма",
     "max_amount": "Максимальная сумма",
     "bonus_percentage": "Процент бонуса",
@@ -98,6 +107,9 @@
     "enter_bonus_percentage": "Введите процент бонуса",
     "enter_client_name": "Введите имя клиента",
     "enter_email": "Введите email",
+    "prize_name": "Введите название приза",
+    "game_name": "Введите название игры",
+    "game_description": "Введите описание игры",
     "search_employee": "Поиск сотрудника...",
     "search_store": "Поиск магазина...",
     "search_game": "Поиск игры...",
@@ -105,7 +117,8 @@
     "search_client": "Поиск клиента...",
     "search_color": "Поиск цвета...",
     "select": "Выберите...",
-    "select_game": "Выбирите игру"
+    "select_game": "Выбирите игру",
+    "select_prize_type": "Выберите тип приза"
   },
   "roles": {
     "superadmin": "Супер администратор",
@@ -129,19 +142,26 @@
     "confirm": "Подтвердить",
     "reset": "Сброс",
     "sending": "Отправка...",
-    "saving": "Сохранение..."
+    "saving": "Сохранение...",
+    "creating": "Создание...",
+    "create_game": "Создать игру",
+    "edit_game": "Редактировать игру",
+    "go_back": "Вернуться"
   },
   "messages": {
     "create": "Cоздать",
     "update": "Изменить",
     "create_bonus_range": "Создать диапозон бонуса",
     "create_prize": "Создать приз",
+    "confirm_delete": "Вы уверены, что хотите удалить эту игру?",
     "success": {
       "created": "{{item}} успешно создан",
       "updated": "{{item}} успешно обновлен",
       "deleted": "{{item}} успешно удален",
       "saved": "Данные успешно сохранены",
-      "login": "Вход выполнен успешно"
+      "login": "Вход выполнен успешно",
+      "game_created": "Игра успешно создана",
+      "game_updated": "Игра успешно обновлена"
     },
     "error": {
       "create": "Ошибка при создании {{item}}",
@@ -156,7 +176,9 @@
       "required_field": "Это поле обязательно для заполнения",
       "invalid_format": "Неверный формат данных",
       "network_error": "Ошибка сети. Проверьте подключение к интернету",
-      "server_error": "Ошибка сервера. Попробуйте позже"
+      "server_error": "Ошибка сервера. Попробуйте позже",
+      "delete": "Не удалось удалить игру",
+      "game_not_found": "Игра не найдена"
     },
     "confirmation": {
       "delete": "Вы уверены, что хотите удалить этот элемент?",
@@ -170,8 +192,25 @@
     "store_bonus_ranges": "Диапазоны бонусов для вашего магазина",
     "no_bonus_ranges": "Диапазоны бонусов не найдены",
     "success": "Успешно!",
-    "create_game": "Создать игру"
-
+    "create_game": "Создать игру",
+    "edit_game": "Редактировать игру",
+    "no_games": "Игры не найдены",
+    "no_prizes": "Призы не добавлены",
+    "game_created": "Игра успешно создана",
+    "game_updated": "Игра успешно обновлена",
+    "prize_instructions_title": "Советы по управлению призами:",
+    "drag_to_reorder": "Перетащите призы с помощью ⋮⋮ для изменения порядка",
+    "prize_ordering": "Порядок призов определяет последовательность в игре",
+    "required_fields": "Название, тип и количество обязательны для каждого приза",
+    "image_selected": "Изображение выбрано: ",
+    "contact_admin": "Вам нужно быть назначенным в магазин для создания игр. Обратитесь к администратору.",
+    "error": {
+      "no_prizes": "Требуется как минимум один приз",
+      "prize_name_required": "Название приза #{{index}} обязательно",
+      "prize_quantity_invalid": "Количество приза #{{index}} должно быть не менее 1",
+      "create_game": "Не удалось создать игру",
+      "update_game": "Не удалось обновить игру"
+    }
   },
   "auth": {
     "login_title": "Войти в аккаунт",
@@ -192,6 +231,12 @@
     "total_prizes": "Всего призов",
     "total_clients": "Всего клиентов"
   },
+  "prize_types": {
+    "item": "Предмет",
+    "money": "Деньги",
+    "items": "предметов",
+    "money_prizes": "денежных призов"
+  },
   "game_types": {
     "spin_wheel": "Колесо фортуны",
     "scratch_card": "Лотерейный билет",
@@ -205,7 +250,13 @@
     "completed": "Завершено",
     "cancelled": "Отменено"
   },
+  "summary": {
+    "total_prizes": "Всего призов: {{count}}",
+    "prize_breakdown": "Типы призов: "
+  },
   "common": {
+    "delete": "Удалить",
+    "cancel": "Отмена",
     "create": "Создать",
     "logout": "Выйти",
     "yes": "Да",
@@ -233,7 +284,10 @@
     "min_length": "Минимум {{count}} символов",
     "max_length": "Максимум {{count}} символов",
     "number": "Введите число",
-    "positive_number": "Введите положительное число"
+    "positive_number": "Введите положительное число",
+    "game_name_required": "Название игры обязательно",
+    "description_required": "Описание обязательно",
+    "store_required": "Выбор магазина обязателен"
   },
   "currency": {
     "set_rate": "Установить курс валюты",
@@ -244,12 +298,18 @@
     "set": "Установить курс"
   },
   "actions": {
+    "add_purchase": "Добавить покупку",
+    "create_purchase": "Добавить покупку",
     "edit": "Изменить",
     "update": "Изменить",
     "cancel": "Отмена",
     "create": "Создать",
     "create_bonus_range": "Создать диапазон бонусов",
     "create_first_bonus_range": "Создать первый диапазон бонусов",
-    "retry": "Повторить"
+    "retry": "Повторить",
+    "add_prize": "Добавить приз",
+    "add_first_prize": "Добавить первый приз",
+    "create_first_game": "Создать первую игру",
+    "remove_prize": "Удалить приз"
   }
 }

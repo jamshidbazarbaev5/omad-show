@@ -18,11 +18,13 @@ export interface PurchasesResponse {
 export interface CreatePurchaseData {
   client: number;
   amount: number;
+  store?: number;
 }
 
 export interface UpdatePurchaseData {
   client?: number;
   amount?: number;
+  store?: number;
 }
 
 // Get all purchases
@@ -33,7 +35,8 @@ export function useGetPurchases(params: PurchasesQueryParams = {}) {
       const searchParams = new URLSearchParams();
 
       if (params.page) searchParams.append("page", params.page.toString());
-      if (params.page_size) searchParams.append("page_size", params.page_size.toString());
+      if (params.page_size)
+        searchParams.append("page_size", params.page_size.toString());
       if (params.search) searchParams.append("search", params.search);
 
       const response = await api.get(`/purchases/?${searchParams.toString()}`);
@@ -74,7 +77,13 @@ export function useUpdatePurchase() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: UpdatePurchaseData }): Promise<Purchase> => {
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: UpdatePurchaseData;
+    }): Promise<Purchase> => {
       const response = await api.patch(`/purchases/${id}/`, data);
       return response.data;
     },

@@ -31,14 +31,61 @@ export default function GamesPage() {
         ]
       : []),
     {
-      header: t("forms.start_date") || "Start Date",
-      accessorKey: "start_date",
-      cell: (row: Game) => new Date(row.start_date).toLocaleDateString(),
-    },
-    {
-      header: t("forms.end_date") || "End Date",
-      accessorKey: "end_date",
-      cell: (row: Game) => new Date(row.end_date).toLocaleDateString(),
+      header: t("forms.prizes") || "Prizes",
+      accessorKey: "prizes",
+      cell: (row: Game) => {
+        const prizeCount = row.prizes?.length || 0;
+        const itemPrizes =
+          row.prizes?.filter((p) => p.type === "item").length || 0;
+        const moneyPrizes =
+          row.prizes?.filter((p) => p.type === "money").length || 0;
+
+        if (prizeCount === 0) {
+          return <span className="text-gray-400">No prizes</span>;
+        }
+
+        return (
+          <div className="text-sm">
+            <div className="font-medium text-gray-900 mb-2">
+              {prizeCount} призы
+            </div>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {row.prizes?.slice(0, 3).map((prize, index) => (
+                <div
+                  key={prize.id || index}
+                  className="flex items-center gap-1"
+                >
+                  {prize.image && typeof prize.image === "string" && (
+                    <img
+                      src={prize.image}
+                      alt={prize.name}
+                      className="w-6 h-6 rounded object-cover"
+                    />
+                  )}
+                  <span
+                    className="text-xs text-gray-600 truncate max-w-20"
+                    title={prize.name}
+                  >
+                    {prize.name}
+                  </span>
+                </div>
+              ))}
+              {prizeCount > 3 && (
+                <span className="text-xs text-gray-400">
+                  +{prizeCount - 3} more
+                </span>
+              )}
+            </div>
+            <div className="text-gray-500">
+              {itemPrizes > 0 && <span>🎁 {itemPrizes}</span>}
+              {itemPrizes > 0 && moneyPrizes > 0 && (
+                <span className="mx-1">•</span>
+              )}
+              {moneyPrizes > 0 && <span>💰 {moneyPrizes}</span>}
+            </div>
+          </div>
+        );
+      },
     },
   ];
 
@@ -47,12 +94,7 @@ export default function GamesPage() {
   };
 
   const handleDelete = (id: number) => {
-    if (
-      window.confirm(
-        t("messages.confirm_delete") ||
-          "Are you sure you want to delete this game?",
-      )
-    ) {
+
       deleteGame(id, {
         onSuccess: () => {
           toast.success(
@@ -64,7 +106,6 @@ export default function GamesPage() {
           toast.error(t("messages.error.delete") || "Failed to delete game");
         },
       });
-    }
   };
 
   const handleCreate = () => {
@@ -91,15 +132,8 @@ export default function GamesPage() {
           <h1 className="text-2xl font-bold">
             {t("navigation.games") || "Games"}
           </h1>
-
         </div>
-        <button
-          onClick={handleCreate}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2"
-        >
-          <span>➕</span>
-          {t("actions.create_game") || "Create Game"}
-        </button>
+
       </div>
 
       {games.length === 0 ? (
