@@ -216,14 +216,14 @@ export default function GamesPage() {
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => handleActivateGame(game.id)}
+                  onClick={() => game.id && handleActivateGame(game.id)}
                   className="text-green-600 hover:text-green-700"
                 >
                   <Unlock className="h-4 w-4 mr-2" />
                   Activate
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => handleLockGame(game.id)}
+                  onClick={() => game.id && handleLockGame(game.id)}
                   className="text-orange-600 hover:text-orange-700"
                 >
                   <Lock className="h-4 w-4 mr-2" />
@@ -231,7 +231,7 @@ export default function GamesPage() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => handleDelete(game.id)}
+                  onClick={() => game.id && handleDelete(game.id)}
                   variant="destructive"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
