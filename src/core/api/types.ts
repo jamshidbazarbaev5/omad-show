@@ -28,6 +28,7 @@ export interface Game {
   store: number;
   name: string;
   description: string;
+  status?: string;
   prizes?: Prize[];
   created_at?: string;
   updated_at?: string;

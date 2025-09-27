@@ -5,6 +5,8 @@ import { useGetGames, useDeleteGame } from "../api/game";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
 import type { Game } from "../api/types";
+import { Play } from "lucide-react";
+import { Button } from "../../components/ui/button";
 
 export default function GamesPage() {
   const navigate = useNavigate();
@@ -94,22 +96,26 @@ export default function GamesPage() {
   };
 
   const handleDelete = (id: number) => {
-
-      deleteGame(id, {
-        onSuccess: () => {
-          toast.success(
-            t("messages.success.deleted") || "Game deleted successfully",
-          );
-          refetch();
-        },
-        onError: () => {
-          toast.error(t("messages.error.delete") || "Failed to delete game");
-        },
-      });
+    deleteGame(id, {
+      onSuccess: () => {
+        toast.success(
+          t("messages.success.deleted") || "Game deleted successfully",
+        );
+        refetch();
+      },
+      onError: () => {
+        toast.error(t("messages.error.delete") || "Failed to delete game");
+      },
+    });
   };
 
   const handleCreate = () => {
     navigate("/games/create");
+  };
+
+  const handleStartGame = (game: Game) => {
+    // Navigate to the new game draw page
+    navigate(`/games/${game.id}/play`);
   };
 
   // Debug logging
@@ -133,7 +139,6 @@ export default function GamesPage() {
             {t("navigation.games") || "Games"}
           </h1>
         </div>
-
       </div>
 
       {games.length === 0 ? (
@@ -156,6 +161,17 @@ export default function GamesPage() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onAdd={handleCreate}
+          actions={(game) => (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleStartGame(game)}
+              className="mr-2"
+            >
+              <Play className="h-4 w-4 mr-1" />
+              Play
+            </Button>
+          )}
         />
       )}
     </div>

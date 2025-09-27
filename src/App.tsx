@@ -26,6 +26,8 @@ import EditClientPage from "./core/pages/edit-client";
 import PurchasesPage from "./core/pages/purchases";
 import CreatePurchasePage from "./core/pages/create-purchase";
 import EditPurchasePage from "./core/pages/edit-purchase";
+import GameDrawPage from "./core/pages/GameDrawPage";
+import LotteryDemo from "./core/pages/LotteryDemo";
 
 const queryClient = new QueryClient();
 function App() {
@@ -34,6 +36,8 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/games/:id/play" element={<GameDrawPage />} />
+          <Route path="/lottery-demo" element={<LotteryDemo />} />
           <Route
             element={
               <Layout>

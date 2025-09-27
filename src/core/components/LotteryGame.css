@@ -1,0 +1,341 @@
+/* Lottery Game Custom Animations */
+
+/* Pulse animation for prize display */
+@keyframes prize-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 20px rgba(168, 85, 247, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+  }
+}
+
+/* Shimmer effect for winner announcement */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* Bounce animation for buttons */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3) rotate(-10deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) rotate(5deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Confetti falling animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+  }
+}
+
+/* Prize glow effect */
+@keyframes prize-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+  }
+}
+
+/* Lottery wheel spinning */
+@keyframes lottery-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(90deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  75% {
+    transform: rotate(270deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Winner reveal animation */
+@keyframes winner-reveal {
+  0% {
+    transform: scale(0) translateY(50px);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  30% {
+    transform: scale(1.2) translateY(-10px);
+    opacity: 0.7;
+    filter: blur(5px);
+  }
+  60% {
+    transform: scale(0.9) translateY(5px);
+    opacity: 0.9;
+    filter: blur(2px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* Utility classes for animations */
+.lottery-prize-pulse {
+  animation: prize-pulse 2s infinite;
+}
+
+.lottery-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+.lottery-bounce-in {
+  animation: bounce-in 0.6s ease-out forwards;
+}
+
+.lottery-confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #f39c12;
+  animation: confetti-fall 3s linear infinite;
+}
+
+.lottery-prize-glow {
+  animation: prize-glow 2s ease-in-out infinite;
+}
+
+.lottery-spin {
+  animation: lottery-spin 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.lottery-winner-reveal {
+  animation: winner-reveal 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Button hover effects */
+.lottery-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.lottery-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.lottery-button:hover::before {
+  left: 100%;
+}
+
+.lottery-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Prize card flip animation */
+@keyframes card-flip {
+  0% {
+    transform: rotateY(0);
+  }
+  50% {
+    transform: rotateY(-90deg);
+  }
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+.lottery-card-flip {
+  animation: card-flip 0.8s ease-in-out;
+}
+
+/* Floating particles background */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.lottery-particle {
+  position: absolute;
+  opacity: 0.1;
+  animation: float 3s ease-in-out infinite;
+}
+
+.lottery-particle:nth-child(odd) {
+  animation-delay: -1s;
+  animation-duration: 4s;
+}
+
+.lottery-particle:nth-child(even) {
+  animation-delay: -2s;
+  animation-duration: 5s;
+}
+
+/* Game container background animation */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.lottery-gradient-bg {
+  background: linear-gradient(
+    -45deg,
+    #667eea,
+    #764ba2,
+    #f093fb,
+    #f5576c
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Prize type indicators */
+.prize-money {
+  background: linear-gradient(135deg, #11998e, #38ef7d);
+}
+
+.prize-item {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* Loading spinner for drawing state */
+@keyframes lottery-loading {
+  0% {
+    transform: rotate(0deg);
+    border-top-color: #667eea;
+  }
+  25% {
+    border-top-color: #764ba2;
+  }
+  50% {
+    transform: rotate(180deg);
+    border-top-color: #f093fb;
+  }
+  75% {
+    border-top-color: #f5576c;
+  }
+  100% {
+    transform: rotate(360deg);
+    border-top-color: #667eea;
+  }
+}
+
+.lottery-loading-spinner {
+  border: 3px solid transparent;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: lottery-loading 2s linear infinite;
+}
+
+/* Success checkmark animation */
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.lottery-checkmark {
+  stroke-dasharray: 50;
+  animation: checkmark 0.5s ease-in-out forwards;
+}
+
+/* Prize entrance stagger animation */
+.lottery-stagger-item:nth-child(1) { animation-delay: 0.1s; }
+.lottery-stagger-item:nth-child(2) { animation-delay: 0.2s; }
+.lottery-stagger-item:nth-child(3) { animation-delay: 0.3s; }
+.lottery-stagger-item:nth-child(4) { animation-delay: 0.4s; }
+.lottery-stagger-item:nth-child(5) { animation-delay: 0.5s; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .lottery-prize-glow {
+    animation-duration: 1.5s;
+  }
+
+  .lottery-spin {
+    animation-duration: 2s;
+  }
+
+  .lottery-winner-reveal {
+    animation-duration: 0.6s;
+  }
+}
+
+/* Accessibility - reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .lottery-prize-pulse,
+  .lottery-shimmer,
+  .lottery-bounce-in,
+  .lottery-confetti,
+  .lottery-prize-glow,
+  .lottery-spin,
+  .lottery-winner-reveal,
+  .lottery-card-flip,
+  .lottery-particle,
+  .lottery-gradient-bg,
+  .lottery-loading-spinner {
+    animation: none;
+  }
+
+  .lottery-button:hover {
+    transform: none;
+  }
+}
