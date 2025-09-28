@@ -20,7 +20,7 @@ export default function EditClientPage() {
 
   // Check if user has permission to edit clients
   const canEditClients =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
+    currentUser?.role === "store_admin" || currentUser?.role === "seller" ||  currentUser?.role === "superadmin";
 
   // Redirect if not authorized
   if (!canEditClients) {

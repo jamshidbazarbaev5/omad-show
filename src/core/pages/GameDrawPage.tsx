@@ -22,9 +22,9 @@ import {
   ArrowLeft,
   Sparkles,
   Zap,
-  Star,
+  // Star,Star
   Coins,
-  Gem,
+  // Gem,
 } from "lucide-react";
 
 interface Winner {
@@ -55,7 +55,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-yellow-300",
       glow: "shadow-yellow-400/50",
       particles: "yellow",
-      icon: <Crown className="h-8 w-8" />,
+      // icon: <Crown className="h-8 w-8" />,
       rarity: t("lottery.rarity.legendary"),
     };
   } else if (order <= 4) {
@@ -67,7 +67,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-purple-300",
       glow: "shadow-purple-400/50",
       particles: "purple",
-      icon: <Gem className="h-8 w-8" />,
+      // icon: <Gem className="h-8 w-8" />,
       rarity: t("lottery.rarity.epic"),
     };
   } else if (order <= 6) {
@@ -79,7 +79,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-blue-300",
       glow: "shadow-blue-400/50",
       particles: "blue",
-      icon: <Star className="h-8 w-8" />,
+      // icon: <Star className="h-8 w-8" />,
       rarity: t("lottery.rarity.rare"),
     };
   }
@@ -349,6 +349,7 @@ export default function GameDrawPage() {
   const isGameDraft = game.status === "draft";
   const hasNoEligibleClients = eligible_clients_count === 0;
 
+  // @ts-ignore
   return (
     <div className="relative min-h-screen overflow-hidden">
       <BackgroundEffects />
@@ -416,23 +417,24 @@ export default function GameDrawPage() {
             </motion.div>
 
             {/* Show detailed client info when there's a mismatch */}
-            {participating_clients_count > 0 &&
-              eligible_clients_count !== participating_clients_count && (
-                <motion.div
-                  className="flex items-center justify-center space-x-4 text-sm text-gray-300 mt-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <span className="bg-gray-800/50 px-3 py-1 rounded-full">
-                    {t("lottery.eligible_clients")}: {eligible_clients_count}
-                  </span>
-                  <span className="bg-gray-800/50 px-3 py-1 rounded-full">
-                    {t("lottery.total_participants")}:{" "}
-                    {participating_clients_count}
-                  </span>
-                </motion.div>
-              )}
+            {/*{participating_clients_count > 0 &&*/}
+            {/*  eligible_clients_count !== participating_clients_count && (*/}
+            {/*    <motion.div*/}
+            {/*      className="flex items-center justify-center space-x-4 text-sm text-gray-300 mt-2"*/}
+            {/*      initial={{ opacity: 0, y: 10 }}*/}
+            {/*      animate={{ opacity: 1, y: 0 }}*/}
+            {/*      transition={{ delay: 0.2 }}*/}
+            {/*    >*/}
+            {/*      <span className="bg-gray-800/50 px-3 py-1 rounded-full">*/}
+            {/*        {t("lottery.eligible_clients")}: {eligible_clients_count}*/}
+            {/*      </span>*/}
+            {/*      <span className="bg-gray-800/50 px-3 py-1 rounded-full">*/}
+            {/*        {t("lottery.total_participants")}:{" "}*/}
+            {/*        {participating_clients_count}*/}
+            {/*      </span>*/}
+            {/*    </motion.div>*/}
+            {/*        */}
+            {/*  )}*/}
 
             {/* Show eligible clients count if it's 0 */}
             {hasNoEligibleClients && (
@@ -711,12 +713,7 @@ const WinnerDisplay = ({
               {winner.full_name}
             </h2>
             <p className="text-xl text-cyan-300 mb-2">{winner.phone_number}</p>
-            <div className="flex items-center justify-center text-lg text-green-300">
-              <Coins className="mr-2 h-5 w-5" />
-              <span className="font-bold">
-                {winner.total_bonuses} {t("lottery.bonus_points")}
-              </span>
-            </div>
+
           </motion.div>
 
           <motion.div

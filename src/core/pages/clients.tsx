@@ -65,7 +65,7 @@ export default function ClientsPage() {
 
   // Check if user has permission to create clients
   const canCreateClients =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
+    currentUser?.role === "store_admin" || currentUser?.role === "seller" ||  currentUser?.role === "superadmin";
 
   // Check if user has permission to edit/delete clients
   const canManageClients =

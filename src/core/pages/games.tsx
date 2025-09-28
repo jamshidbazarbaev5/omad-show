@@ -24,12 +24,15 @@ import {useState} from "react";
 export default function GamesPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [page, setPage] = useState(1);
   const { data: currentUser } = useCurrentUser();
-  const { data: gamesData, isLoading, refetch } = useGetGames();
+  const { data: gamesData, isLoading, refetch } = useGetGames({params:{
+    page:page
+    }});
   const { mutate: deleteGame } = useDeleteGame();
   const { mutate: activateGame } = useActivateGame();
   const { mutate: lockGame } = useLockGame();
-  const [page, setPage] = useState(1);
+
   const totalCount = Array.isArray(gamesData) ? gamesData.length : gamesData?.count || 0;
   const handleActivateGame = (gameId: number) => {
     activateGame(gameId, {
@@ -224,7 +227,7 @@ export default function GamesPage() {
           columns={columns}
           isLoading={isLoading}
           totalCount={totalCount}
-          pageSize={30}
+          pageSize={10}
           currentPage={page}
           onPageChange={(newPage) => setPage(newPage)}
           onEdit={handleEdit}

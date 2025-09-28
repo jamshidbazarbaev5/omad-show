@@ -319,8 +319,8 @@
   "lottery": {
     "initializing_game": "🎮 Инициализация игры...",
     "back_to_games": "Назад к играм",
-    "players_ready": "игроков готово",
-    "spin_to_win": "🎰 КРУТИ И ВЫИГРЫВАЙ! 🎰",
+    "players_ready": "Всего участников",
+    "spin_to_win": "🎰 РОЗЫГРЫШ! 🎰",
     "winner": "🎊 ПОБЕДИТЕЛЬ! 🎊",
     "next_prize": "Следующий приз",
     "all_prizes_drawn": "🎉 Все призы разыграны! 🎉",
@@ -340,18 +340,18 @@
     "close": "✕",
     "game_complete_all_prizes": "🎊 Все призы разыграны! 🎊",
     "finish_game": "Завершить игру",
-    "rolling_dice": "🎲 Кидаем кости судьбы... �2",
+    "rolling_dice": "🎲",
     "drawing_dots": "РОЗЫГРЫШ...",
     "thank_you_amazing": "Спасибо за потрясающий опыт лотереи!",
     "rarity": {
-      "legendary": "ЛЕГЕНДАРНЫЙ",
-      "epic": "ЭПИЧЕСКИЙ",
-      "rare": "РЕДКИЙ",
-      "common": "ОБЫЧНЫЙ"
+      "legendary": "",
+      "epic": "",
+      "rare": "",
+      "common": ""
     },
     "prize_types": {
       "cash_prize": "Денежный приз",
-      "physical_item": "Физический предмет"
+      "physical_item": ""
     },
     "no_eligible_clients": "Нет подходящих клиентов",
     "game_status": "Статус игры",

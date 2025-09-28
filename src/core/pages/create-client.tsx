@@ -15,7 +15,7 @@ export default function CreateClientPage() {
 
   // Check if user has permission to create clients
   const canCreateClients =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller";
+    currentUser?.role === "store_admin" || currentUser?.role === "seller" ||   currentUser?.role === "superadmin";;
 
   // Redirect if not authorized
   if (!canCreateClients) {

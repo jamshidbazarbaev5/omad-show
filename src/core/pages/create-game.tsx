@@ -267,7 +267,7 @@ export default function CreateGamePage() {
                 {t("forms.game_description") || "Game Description"} *
               </label>
               <textarea
-                {...register("description", { required: true })}
+                {...register("description")}
                 rows={4}
                 placeholder={
                   t("placeholders.game_description") || "Введите описание игры"

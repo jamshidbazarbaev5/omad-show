@@ -45,7 +45,7 @@ function App() {
               </Layout>
             }
           >
-            <Route path="/" element={<Navigate to="/stores" />} />
+            <Route path="/" element={<Navigate to="/clients" />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/colors" element={<ColorsPage />} />
             <Route path="/create-color" element={<CreateColorPage />} />

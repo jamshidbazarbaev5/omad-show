@@ -266,27 +266,7 @@ export function PrizeForm({ prizes, onPrizesChange }: PrizeFormProps) {
         </div>
       )}
 
-      {prizes.length > 0 && (
-        <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
-          <p className="font-medium mb-1">
-            {t("messages.prize_instructions_title") || "Prize Management Tips:"}
-          </p>
-          <ul className="list-disc list-inside space-y-1 text-xs">
-            <li>
-              {t("messages.drag_to_reorder") ||
-                "Drag prizes using the ⋮⋮ handle to reorder them"}
-            </li>
-            <li>
-              {t("messages.prize_ordering") ||
-                "Prize order determines the sequence in the game"}
-            </li>
-            <li>
-              {t("messages.required_fields") ||
-                "Name, type, and quantity are required for each prize"}
-            </li>
-          </ul>
-        </div>
-      )}
+
     </div>
   );
 }

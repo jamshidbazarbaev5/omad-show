@@ -74,6 +74,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       }
     });
   }, [location.pathname]);
+  const superUser = currentUser?.role === "superadmin";
+  const storeAdmin = currentUser?.role === "store_admin";
+  const seller = currentUser?.role === "seller";
 
   const navItems: NavItem[] = (() => {
     // Main navigation items - 3 primary sections (direct links)
@@ -96,36 +99,49 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     ];
 
     // Settings section - containing all other routes
-    const settingsItems: NavItem[] = [
-      {
+    const settingsSubmenu: NavItem[] = [];
+
+    // Add stores nav only for superUser (not for storeAdmin or seller)
+    if (superUser) {
+      settingsSubmenu.push({
+        icon: ShoppingBag,
+        label: t("navigation.stores"),
+        href: "/stores",
+      });
+    }
+
+    // Add employees nav for superUser and storeAdmin (not for seller)
+    if (superUser || storeAdmin) {
+      settingsSubmenu.push({
+        icon: User2,
+        label: t("navigation.employees"),
+        href: "/employees",
+      });
+    }
+
+    const settingsItems: NavItem[] = [];
+
+    // Only add settings section if there are submenu items
+    if (settingsSubmenu.length > 0) {
+      settingsItems.push({
         icon: Menu,
         label: t("navigation.settings") || "Settings",
         id: "settings",
-        submenu: [
-          {
-            icon: ShoppingBag,
-            label: t("navigation.stores"),
-            href: "/stores",
-          },
+        submenu: settingsSubmenu,
+      });
+    }
 
-          {
-            icon: User2,
-            label: t("navigation.employees"),
-            href: "/employees",
-          },
+    // Role-based filtering
+    if (seller) {
+      // Seller can only see clients
+      return [mainItems[0]]; // Only clients
+    } else if (storeAdmin || superUser) {
+      // Store admin and super user can see main items + settings (with appropriate submenu)
+      return [...mainItems, ...settingsItems];
+    }
 
-          // {
-          //   icon: Gift,
-          //   label: t("navigation.prizes") || "Prizes",
-          //   href: "/prizes",
-          // },
-
-
-        ],
-      },
-    ];
-
-    return [...mainItems, ...settingsItems];
+    // Default fallback (shouldn't happen with proper role management)
+    return [];
   })();
 
   return (
