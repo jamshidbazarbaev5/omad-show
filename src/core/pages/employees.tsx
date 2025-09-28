@@ -98,6 +98,7 @@ const columns = (t: (key: string) => string) => [
 
 export default function EmployeesPage() {
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -139,7 +140,7 @@ export default function EmployeesPage() {
 
   const { mutate: updateEmployee, isPending: isUpdating } = useUpdateEmployee();
   const { mutate: deleteEmployee } = useDeleteEmployee();
-
+  const totalCount = Array.isArray(employeesData) ? employeesData.length : employeesData?.count || 0;
   const handleEdit = (employee: Employee) => {
     if (!canManageEmployees) {
       toast.error(t("messages.error.unauthorized"));
@@ -258,6 +259,10 @@ export default function EmployeesPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAdd={handleAdd}
+        totalCount={totalCount}
+        pageSize={30}
+        currentPage={page}
+        onPageChange={(newPage) => setPage(newPage)}
       />
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

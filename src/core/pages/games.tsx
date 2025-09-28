@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
+import {useState} from "react";
 
 export default function GamesPage() {
   const navigate = useNavigate();
@@ -28,7 +29,8 @@ export default function GamesPage() {
   const { mutate: deleteGame } = useDeleteGame();
   const { mutate: activateGame } = useActivateGame();
   const { mutate: lockGame } = useLockGame();
-
+  const [page, setPage] = useState(1);
+  const totalCount = Array.isArray(gamesData) ? gamesData.length : gamesData?.count || 0;
   const handleActivateGame = (gameId: number) => {
     activateGame(gameId, {
       onSuccess: () => {
@@ -175,6 +177,7 @@ export default function GamesPage() {
 
   const handleStartGame = (game: Game) => {
     // Navigate to the new game draw page
+
     navigate(`/games/${game.id}/play`);
   };
 
@@ -191,6 +194,8 @@ export default function GamesPage() {
   }
   const games = Array.isArray(gamesData) ? gamesData : gamesData?.results || [];
 
+  // @ts-ignore
+  // @ts-ignore
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
@@ -218,6 +223,10 @@ export default function GamesPage() {
           data={games}
           columns={columns}
           isLoading={isLoading}
+          totalCount={totalCount}
+          pageSize={30}
+          currentPage={page}
+          onPageChange={(newPage) => setPage(newPage)}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onAdd={handleCreate}
@@ -229,28 +238,37 @@ export default function GamesPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => handleStartGame(game)}>
-                  <Play className="h-4 w-4 mr-2" />
-                  Play
-                </DropdownMenuItem>
+                {game.status !== 'finished' && (
+                    <DropdownMenuItem onClick={() => handleStartGame(game)}>
+                      <Play className="h-4 w-4 mr-2" />
+                      Play
+                    </DropdownMenuItem>
+                )}
+
                 <DropdownMenuItem onClick={() => handleEdit(game)}>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => game.id && handleActivateGame(game.id)}
-                  className="text-green-600 hover:text-green-700"
-                >
-                  <Unlock className="h-4 w-4 mr-2" />
-                  Activate
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => game.id && handleLockGame(game.id)}
-                  className="text-orange-600 hover:text-orange-700"
-                >
-                  <Lock className="h-4 w-4 mr-2" />
-                  Lock
-                </DropdownMenuItem>
+                {game.status !== 'finished' && (
+                    <DropdownMenuItem
+                        onClick={() => game.id && handleActivateGame(game.id)}
+                        className="text-green-600 hover:text-green-700"
+                    >
+                      <Unlock className="h-4 w-4 mr-2" />
+                      Activate
+                    </DropdownMenuItem>
+                )}
+                {game.status !== 'finished' && (
+                    <DropdownMenuItem
+                        onClick={() => game.id && handleLockGame(game.id)}
+                        className="text-orange-600 hover:text-orange-700"
+                    >
+                      <Lock className="h-4 w-4 mr-2" />
+                      Lock
+                    </DropdownMenuItem>
+                )
+                }
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => game.id && handleDelete(game.id)}

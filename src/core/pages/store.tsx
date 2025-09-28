@@ -39,10 +39,12 @@ const columns = (t: any) => [
 
 export default function StoresPage() {
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { t } = useTranslation();
+
 
   const { data: storesData, isLoading } = useGetStores({});
 
@@ -62,6 +64,8 @@ export default function StoresPage() {
 
   // Check if user is superadmin (this should be replaced with actual auth check)
   const isSuperAdmin = currentUser?.role === "superadmin";
+
+  const totalCount = Array.isArray(storesData) ? storesData.length : storesData?.count || 0;
 
   const handleEdit = (store: Store) => {
     if (!isSuperAdmin) {
@@ -137,6 +141,10 @@ export default function StoresPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAdd={handleAdd}
+        totalCount={totalCount}
+        pageSize={30}
+        currentPage={page}
+        onPageChange={(newPage) => setPage(newPage)}
       />
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

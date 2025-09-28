@@ -122,16 +122,16 @@ export default function PurchasesPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("uz-Uz", {
       style: "currency",
-      currency: "USD",
+      currency: "UZS",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("ru-RU", {
       year: "numeric",
       month: "short",
       day: "numeric",

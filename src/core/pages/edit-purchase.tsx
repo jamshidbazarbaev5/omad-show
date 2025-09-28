@@ -293,13 +293,7 @@ export default function EditPurchasePage() {
                   {t("forms.client") || "Client"} *
                 </Label>
                 <Select
-                  value={
-                    formData.client &&
-                    clients.length > 0 &&
-                    clients.some((c: Client) => c.id === formData.client)
-                      ? formData.client.toString()
-                      : ""
-                  }
+                    value={formData.client ? formData.client.toString() : ""}
                   onValueChange={(value) =>
                     handleInputChange("client", parseInt(value))
                   }
@@ -343,13 +337,7 @@ export default function EditPurchasePage() {
                 <div className="space-y-2">
                   <Label htmlFor="store">{t("forms.store") || "Store"} *</Label>
                   <Select
-                    value={
-                      formData.store &&
-                      stores.length > 0 &&
-                      stores.some((s: Store) => s.id === formData.store)
-                        ? formData.store.toString()
-                        : ""
-                    }
+                      value={formData.store ? formData.store.toString() : ""}
                     onValueChange={(value) =>
                       handleInputChange("store", parseInt(value))
                     }
