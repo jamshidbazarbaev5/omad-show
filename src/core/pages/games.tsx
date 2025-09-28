@@ -71,6 +71,28 @@ export default function GamesPage() {
         ]
       : []),
     {
+      header: t("forms.status") || "Status",
+      accessorKey: "status",
+      cell: (row: Game) => {
+        const status = row.status || "draft";
+        const statusClass =
+          {
+            draft: "bg-gray-100 text-gray-800",
+            active: "bg-green-100 text-green-800",
+            locked: "bg-orange-100 text-orange-800",
+            finished: "bg-blue-100 text-blue-800",
+          }[status] || "bg-gray-100 text-gray-800";
+
+        return (
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}`}
+          >
+            {t(`status.${status}`) || status}
+          </span>
+        );
+      },
+    },
+    {
       header: t("forms.prizes") || "Prizes",
       accessorKey: "prizes",
       cell: (row: Game) => {

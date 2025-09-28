@@ -82,7 +82,8 @@
     "formula_2": "Формула 2",
     "actions": "Действия",
     "date": "Дата",
-    "purchase_info": "Данные о покупке"
+    "purchase_info": "Данные о покупке",
+    "status": "Статус"
   },
   "placeholders": {
     "select_store": "Магазин",
@@ -248,7 +249,10 @@
     "inactive": "Неактивный",
     "pending": "В ожидании",
     "completed": "Завершено",
-    "cancelled": "Отменено"
+    "cancelled": "Отменено",
+    "draft": "Черновик",
+    "locked": "Заблокирована",
+    "finished": "Завершена"
   },
   "summary": {
     "total_prizes": "Всего призов: {{count}}",

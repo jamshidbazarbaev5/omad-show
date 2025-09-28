@@ -64,7 +64,8 @@
     "casing_type_side": "Yánındaǧı",
     "casing_type_straight": "Tuwrı",
     "formula_1": "Formula 1",
-    "formula_2": "Formula 2"
+    "formula_2": "Formula 2",
+    "status": "Status"
   },
   "placeholders": {
     "enter_phone_number": "Telefon nomerın kiritińiz",
@@ -222,7 +223,10 @@
     "inactive": "Aktiv emes",
     "pending": "Kútiw hálatında",
     "completed": "Aqlasqan",
-    "cancelled": "Biykarlanǧan"
+    "cancelled": "Biykarlanǧan",
+    "draft": "Qoralam",
+    "locked": "Bekitilgen",
+    "finished": "Aqlaldı"
   },
   "summary": {
     "total_prizes": "Barlıq sıylıqlar: {{count}}",
