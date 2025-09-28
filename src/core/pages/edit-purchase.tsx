@@ -60,6 +60,10 @@ export default function EditPurchasePage() {
     store: 0,
   });
 
+  // String values for Select components
+  const [selectedClient, setSelectedClient] = useState<string>("");
+  const [selectedStore, setSelectedStore] = useState<string>("");
+
   const [errors, setErrors] = useState<Partial<UpdatePurchaseData>>({});
 
   // Get clients array from the API response
@@ -78,46 +82,44 @@ export default function EditPurchasePage() {
 
   // Initialize form data when purchase is loaded
   useEffect(() => {
-    console.log("useEffect triggered, purchase:", purchase);
-    console.log("purchase exists:", !!purchase);
+    if (!purchase?.id) return;
 
-    // Try direct assignment approach
-    if (purchase?.id) {
-      console.log("Purchase ID exists:", purchase.id);
-      console.log("Purchase client:", purchase.client);
+    const newFormData: UpdatePurchaseData = {
+      client: 0,
+      amount: 0,
+      store: 0,
+    };
 
-      const newFormData: UpdatePurchaseData = {
-        client: 0,
-        amount: 0,
-        store: 0,
-      };
+    // Set client ID
+    if (purchase.client?.id) {
+      newFormData.client = purchase.client.id;
 
-      // Set client ID
-      if (purchase.client && purchase.client.id) {
-        newFormData.client = Number(purchase.client.id);
-        console.log("Setting client to:", newFormData.client);
-      }
-
-      // Set amount
-      if (purchase.amount) {
-        newFormData.amount = parseFloat(String(purchase.amount));
-        console.log("Setting amount to:", newFormData.amount);
-      }
-
-      // Set store ID for superadmin
+      // Only set selectedClient if clients are loaded
       if (
-        currentUser?.role === "superadmin" &&
-        purchase.store &&
-        purchase.store.id
+        clients.length > 0 &&
+        clients.some((c) => c.id === purchase.client.id)
       ) {
-        newFormData.store = Number(purchase.store.id);
-        console.log("Setting store to:", newFormData.store);
+        setSelectedClient(purchase.client.id.toString());
       }
-
-      console.log("Final form data before setting:", newFormData);
-      setFormData(newFormData);
     }
-  }, [purchase, currentUser?.role]);
+
+    // Set amount
+    if (purchase.amount) {
+      newFormData.amount = parseFloat(String(purchase.amount));
+    }
+
+    // Set store ID for superadmin
+    if (currentUser?.role === "superadmin" && purchase.store?.id) {
+      newFormData.store = purchase.store.id;
+
+      // Only set selectedStore if stores are loaded
+      if (stores.length > 0 && stores.some((s) => s.id === purchase.store.id)) {
+        setSelectedStore(purchase.store.id.toString());
+      }
+    }
+
+    setFormData(newFormData);
+  }, [purchase, currentUser?.role, clients.length, stores.length]);
 
   if (!canEditPurchases) {
     return (
@@ -156,7 +158,7 @@ export default function EditPurchasePage() {
   const validateForm = (): boolean => {
     const newErrors: Partial<UpdatePurchaseData> = {};
 
-    if (!formData.client || formData.client === 0) {
+    if (!formData.client || formData.client === 0 || isNaN(formData.client)) {
       newErrors.client = 0; // Use 0 to indicate error for number field
     }
 
@@ -166,7 +168,7 @@ export default function EditPurchasePage() {
 
     if (
       currentUser?.role === "superadmin" &&
-      (!formData.store || formData.store === 0)
+      (!formData.store || formData.store === 0 || isNaN(formData.store))
     ) {
       newErrors.store = 0;
     }
@@ -237,6 +239,20 @@ export default function EditPurchasePage() {
     }
   };
 
+  const handleClientChange = (value: string) => {
+    console.log("Client changed to:", value);
+    const clientId = parseInt(value);
+    setSelectedClient(value);
+    handleInputChange("client", clientId);
+  };
+
+  const handleStoreChange = (value: string) => {
+    console.log("Store changed to:", value);
+    const storeId = parseInt(value);
+    setSelectedStore(value);
+    handleInputChange("store", storeId);
+  };
+
   if (isLoadingPurchase) {
     return (
       <div className="container mx-auto py-6">
@@ -293,10 +309,8 @@ export default function EditPurchasePage() {
                   {t("forms.client") || "Client"} *
                 </Label>
                 <Select
-                    value={formData.client ? formData.client.toString() : ""}
-                  onValueChange={(value) =>
-                    handleInputChange("client", parseInt(value))
-                  }
+                  value={selectedClient}
+                  onValueChange={handleClientChange}
                   disabled={isLoadingClients}
                 >
                   <SelectTrigger
@@ -337,10 +351,8 @@ export default function EditPurchasePage() {
                 <div className="space-y-2">
                   <Label htmlFor="store">{t("forms.store") || "Store"} *</Label>
                   <Select
-                      value={formData.store ? formData.store.toString() : ""}
-                    onValueChange={(value) =>
-                      handleInputChange("store", parseInt(value))
-                    }
+                    value={selectedStore}
+                    onValueChange={handleStoreChange}
                     disabled={isLoadingStores}
                   >
                     <SelectTrigger
