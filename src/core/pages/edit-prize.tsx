@@ -42,7 +42,7 @@ export default function EditPrizePage() {
   // Filter games based on user role
   const availableGames = isSuperAdmin
     ? games
-    : games.filter((game) => game.store === userStoreId);
+    : games.filter((game) => game.store.id === userStoreId);
 
   // Create field configuration
   const getPrizeFields = () => {
