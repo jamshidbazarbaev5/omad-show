@@ -89,13 +89,14 @@ export default function EditGamePage() {
   // Set form data when game loads
   useEffect(() => {
     if (gameData) {
+      // @ts-ignore
       reset({
-        name: gameData.name,
-        description: gameData.description,
-        store: gameData.store.id,
-        all_clients: gameData.all_clients ?? true,
-        from_bonus: gameData.from_bonus ?? 10,
-        to_bonus: gameData.to_bonus ?? 20,
+        name: gameData?.name,
+        description: gameData?.description,
+        store: gameData?.store.id,
+        all_clients: gameData?.all_clients ?? true,
+        from_bonus: gameData?.from_bonus ?? 10,
+        to_bonus: gameData?.to_bonus ?? 20,
       });
 
       // Set prizes data

@@ -25,7 +25,11 @@ export interface Employee {
 
 export interface Game {
   id?: number;
-  store: number;
+  store: {
+    id: number;
+    name: string;
+    address: string;
+  };
   name: string;
   description: string;
   status?: string;
