@@ -97,7 +97,7 @@ export default function EditPurchasePage() {
       // Only set selectedClient if clients are loaded
       if (
         clients.length > 0 &&
-        clients.some((c) => c.id === purchase.client.id)
+        clients.some((c:any) => c.id === purchase?.client?.id)
       ) {
         setSelectedClient(purchase.client.id.toString());
       }
@@ -109,11 +109,11 @@ export default function EditPurchasePage() {
     }
 
     // Set store ID for superadmin
-    if (currentUser?.role === "superadmin" && purchase.store?.id) {
+    if (currentUser?.role === "superadmin" && purchase?.store?.id) {
       newFormData.store = purchase.store.id;
 
       // Only set selectedStore if stores are loaded
-      if (stores.length > 0 && stores.some((s) => s.id === purchase.store.id)) {
+      if (stores.length > 0 && stores.some((s) => s.id === purchase?.store?.id)) {
         setSelectedStore(purchase.store.id.toString());
       }
     }

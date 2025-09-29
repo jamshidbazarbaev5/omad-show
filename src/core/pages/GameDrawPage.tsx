@@ -23,7 +23,7 @@ import {
   Sparkles,
   Zap,
   // Star,Star
-  Coins,
+  Coins, Gem, Star,
   // Gem,
 } from "lucide-react";
 
@@ -55,7 +55,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-yellow-300",
       glow: "shadow-yellow-400/50",
       particles: "yellow",
-      // icon: <Crown className="h-8 w-8" />,
+      icon: <Crown className="h-8 w-8" />,
       rarity: t("lottery.rarity.legendary"),
     };
   } else if (order <= 4) {
@@ -67,7 +67,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-purple-300",
       glow: "shadow-purple-400/50",
       particles: "purple",
-      // icon: <Gem className="h-8 w-8" />,
+      icon: <Gem className="h-8 w-8" />,
       rarity: t("lottery.rarity.epic"),
     };
   } else if (order <= 6) {
@@ -79,7 +79,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-blue-300",
       glow: "shadow-blue-400/50",
       particles: "blue",
-      // icon: <Star className="h-8 w-8" />,
+      icon: <Star className="h-8 w-8" />,
       rarity: t("lottery.rarity.rare"),
     };
   }
@@ -350,6 +350,7 @@ export default function GameDrawPage() {
   const hasNoEligibleClients = eligible_clients_count === 0;
 
   // @ts-ignore
+  // @ts-ignore
   return (
     <div className="relative min-h-screen overflow-hidden">
       <BackgroundEffects />
@@ -531,7 +532,7 @@ const PrizeDisplay = ({
     textColor: string;
     glow: string;
     particles: string;
-    icon: React.JSX.Element;
+    icon: any;
     rarity: string;
   } | null;
 }) => {
@@ -667,8 +668,9 @@ const WinnerDisplay = ({
     cardBg: string;
     textColor: string;
     glow: string;
+
     particles: string;
-    icon: React.JSX.Element;
+    icon: any;
     rarity: string;
   } | null;
 }) => {
@@ -774,7 +776,7 @@ const DrawingAnimation = ({
     textColor: string;
     glow: string;
     particles: string;
-    icon: React.JSX.Element;
+    icon?:  any;
     rarity: string;
   } | null;
 }) => {
