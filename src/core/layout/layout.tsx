@@ -8,7 +8,6 @@ import {
   User,
   ChevronDown,
   Trophy,
-  ShoppingCart,
   type LucideIcon,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -86,11 +85,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         label: t("navigation.clients") || "Clients",
         href: "/clients",
       },
-      {
-        icon: ShoppingCart,
-        label: t("navigation.purchases") || "Purchases",
-        href: "/purchases",
-      },
+
       {
         icon: Trophy,
         label: t("navigation.games") || "Games",

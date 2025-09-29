@@ -29,6 +29,9 @@ export interface Game {
   name: string;
   description: string;
   status?: string;
+  all_clients?: boolean;
+  from_bonus?: number;
+  to_bonus?: number;
   prizes?: Prize[];
   created_at?: string;
   updated_at?: string;
@@ -75,18 +78,38 @@ export interface Client {
 
 export interface Purchase {
   id?: number;
-  // client: number;
-  amount: number;
-  created_at?: string;
-  updated_at?: string;
-  client?: {
+  client: {
     id: number;
-    phone_number: string;
     full_name: string;
+    phone_number: string;
   };
-  store?: {
+  amount: string;
+  created_at: string;
+  updated_at?: string;
+  bonus_awarded: number;
+  is_active: boolean;
+  created_by: {
+    id: number;
+    full_name: string;
+    phone_number: string;
+  };
+  store: {
     id: number;
     name: string;
     address: string;
+    created_at: string;
   };
+}
+
+export interface Participant {
+  id: number;
+  full_name: string;
+  phone_number: string;
+  total_bonuses: number;
+}
+
+export interface GameParticipants {
+  game_status: string;
+  participants_count: number;
+  participants: Participant[];
 }

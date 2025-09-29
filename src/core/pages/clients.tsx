@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, Trash2, Edit } from "lucide-react";
+import { Plus, Search, Trash2, Edit, History } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import {
@@ -65,11 +65,15 @@ export default function ClientsPage() {
 
   // Check if user has permission to create clients
   const canCreateClients =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller" ||  currentUser?.role === "superadmin";
+    currentUser?.role === "store_admin" ||
+    currentUser?.role === "seller" ||
+    currentUser?.role === "superadmin";
 
   // Check if user has permission to edit/delete clients
   const canManageClients =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller"  || currentUser?.role === "superadmin";
+    currentUser?.role === "store_admin" ||
+    currentUser?.role === "seller" ||
+    currentUser?.role === "superadmin";
 
   if (!canViewClients) {
     return (
@@ -228,6 +232,16 @@ export default function ClientsPage() {
                       <TableCell>{client.phone_number}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              navigate(`/clients/${client.id}/history`)
+                            }
+                            title={t("actions.view_history") || "View History"}
+                          >
+                            <History className="h-4 w-4" />
+                          </Button>
                           <CreatePurchaseDialog
                             client={client}
                             onSuccess={() => refetch()}

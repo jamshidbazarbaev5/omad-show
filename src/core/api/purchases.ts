@@ -94,6 +94,21 @@ export function useUpdatePurchase() {
   });
 }
 
+// Get client purchase history
+export function useGetClientPurchases(
+  clientId: number,
+  params: PurchasesQueryParams = {},
+) {
+  return useQuery({
+    queryKey: ["clientPurchases", clientId, params],
+    queryFn: async (): Promise<PurchasesResponse> => {
+      const response = await api.get(`/purchases?/client_id/${clientId}`);
+      return response.data;
+    },
+    enabled: !!clientId,
+  });
+}
+
 // Delete purchase
 export function useDeletePurchase() {
   const queryClient = useQueryClient();

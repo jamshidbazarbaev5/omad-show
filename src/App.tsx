@@ -26,6 +26,7 @@ import EditClientPage from "./core/pages/edit-client";
 import PurchasesPage from "./core/pages/purchases";
 import CreatePurchasePage from "./core/pages/create-purchase";
 import EditPurchasePage from "./core/pages/edit-purchase";
+import ClientHistoryPage from "./core/pages/client-history";
 import GameDrawPage from "./core/pages/GameDrawPage";
 import LotteryDemo from "./core/pages/LotteryDemo";
 
@@ -71,6 +72,10 @@ function App() {
             <Route path="/clients" element={<ClientsPage />} />
             <Route path="/clients/create" element={<CreateClientPage />} />
             <Route path="/clients/:id/edit" element={<EditClientPage />} />
+            <Route
+              path="/clients/:clientId/history"
+              element={<ClientHistoryPage />}
+            />
             <Route path="/purchases" element={<PurchasesPage />} />
             <Route path="/purchases/create" element={<CreatePurchasePage />} />
             <Route path="/purchases/:id/edit" element={<EditPurchasePage />} />

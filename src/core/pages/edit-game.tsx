@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { PrizeForm } from "../components/PrizeForm";
 import { toast } from "sonner";
-import { useGetGame, useUpdateGame } from "../api/game";
+import { useGetGame, useUpdateGame, useGetGameParticipants } from "../api/game";
 import { useGetStores } from "../api/store";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import type { Prize } from "../api/types";
@@ -31,6 +31,9 @@ interface GameFormData {
   name: string;
   description: string;
   store?: number;
+  all_clients: boolean;
+  from_bonus?: number;
+  to_bonus?: number;
 }
 
 export default function EditGamePage() {
@@ -40,6 +43,8 @@ export default function EditGamePage() {
   const { data: currentUser, isLoading: userLoading } = useCurrentUser();
   const { data: storesData, isLoading: storesLoading } = useGetStores();
   const { data: gameData, isLoading: gameLoading } = useGetGame(Number(id));
+  const { data: participantsData, isLoading: participantsLoading } =
+    useGetGameParticipants(Number(id));
   const [prizes, setPrizes] = useState<Prize[]>([]);
 
   // Handle stores data structure (could be array or paginated response)
@@ -57,13 +62,20 @@ export default function EditGamePage() {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<GameFormData>({
     defaultValues: {
       name: "",
       description: "",
       store: isSuperAdmin ? undefined : userStore,
+      all_clients: true,
+      from_bonus: 10,
+      to_bonus: 20,
     },
   });
+
+  const watchAllClients = watch("all_clients");
+  const showBonusFields = watchAllClients === false;
 
   // Set form data when game loads
   useEffect(() => {
@@ -72,6 +84,9 @@ export default function EditGamePage() {
         name: gameData.name,
         description: gameData.description,
         store: gameData.store,
+        all_clients: gameData.all_clients ?? true,
+        from_bonus: gameData.from_bonus ?? 10,
+        to_bonus: gameData.to_bonus ?? 20,
       });
 
       // Set prizes data
@@ -120,6 +135,14 @@ export default function EditGamePage() {
     const storeId = isSuperAdmin ? data.store : userStore;
     if (storeId) {
       formData.append("store", storeId.toString());
+    }
+
+    // Add client selection data
+    const allClientsValue = data.all_clients === true;
+    formData.append("all_clients", allClientsValue.toString());
+    if (!allClientsValue) {
+      formData.append("from_bonus", (data.from_bonus || 10).toString());
+      formData.append("to_bonus", (data.to_bonus || 20).toString());
     }
 
     // Add prizes data
@@ -311,6 +334,97 @@ export default function EditGamePage() {
           </div>
         </div>
 
+        {/* Client Selection Section */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-lg font-semibold mb-4">
+            {t("forms.client_selection") || "Client Selection"}
+          </h2>
+
+          <div className="space-y-4">
+            {/* All Clients Radio Button */}
+            <div className="flex items-center space-x-3">
+              <input
+                type="radio"
+                id="all_clients_true"
+                {...register("all_clients")}
+                value="true"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              />
+              <label
+                htmlFor="all_clients_true"
+                className="text-sm font-medium text-gray-700"
+              >
+                {t("forms.all_clients") || "All Clients"}
+              </label>
+            </div>
+
+            {/* Specific Bonus Range Radio Button */}
+            <div className="flex items-center space-x-3">
+              <input
+                type="radio"
+                id="all_clients_false"
+                {...register("all_clients")}
+                value="false"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              />
+              <label
+                htmlFor="all_clients_false"
+                className="text-sm font-medium text-gray-700"
+              >
+                {t("forms.bonus_range_clients") || "Clients with Bonus Range"}
+              </label>
+            </div>
+
+            {/* Bonus Range Fields - Only show when all_clients is false */}
+            {showBonusFields && (
+              <div className="ml-7 grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("forms.from_bonus") || "From Bonus"} *
+                  </label>
+                  <input
+                    type="number"
+                    {...register("from_bonus", {
+                      required: showBonusFields,
+                      min: 1,
+                      max: 999,
+                    })}
+                    placeholder="10"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {errors.from_bonus && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {t("validation.from_bonus_required") ||
+                        "From bonus is required"}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("forms.to_bonus") || "To Bonus"} *
+                  </label>
+                  <input
+                    type="number"
+                    {...register("to_bonus", {
+                      required: showBonusFields,
+                      min: 1,
+                      max: 999,
+                    })}
+                    placeholder="20"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {errors.to_bonus && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {t("validation.to_bonus_required") ||
+                        "To bonus is required"}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Prizes Section */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <PrizeForm prizes={prizes} onPrizesChange={setPrizes} />
@@ -367,6 +481,93 @@ export default function EditGamePage() {
           </div>
         )}
       </form>
+
+      {/* Participants Section */}
+      <div className="bg-white rounded-lg shadow-sm border p-6 mt-8">
+        <h2 className="text-lg font-semibold mb-4">
+          {t("forms.participants") || "Game Participants"}
+        </h2>
+
+        {participantsLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <div className="text-gray-500">
+              {t("forms.loading") || "Loading participants..."}
+            </div>
+          </div>
+        ) : participantsData && participantsData.participants.length > 0 ? (
+          <>
+            <div className="mb-4 flex flex-wrap gap-4 text-sm">
+              <div className="bg-blue-100 px-3 py-1 rounded">
+                <span className="font-medium">
+                  {t("status.game_status") || "Status"}:
+                </span>
+                <span className="ml-1 capitalize">
+                  {participantsData.game_status}
+                </span>
+              </div>
+              <div className="bg-green-100 px-3 py-1 rounded">
+                <span className="font-medium">
+                  {t("status.total_participants") || "Total Participants"}:
+                </span>
+                <span className="ml-1">
+                  {participantsData.participants_count}
+                </span>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.id") || "ID"}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.full_name") || "Full Name"}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.phone_number") || "Phone Number"}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.total_bonuses") || "Total Bonuses"}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {participantsData.participants.map((participant) => (
+                    <tr key={participant.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {participant.id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {participant.full_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {participant.phone_number}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                          {participant.total_bonuses}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <div className="text-gray-500 mb-2">
+              {t("messages.no_participants") || "No participants found"}
+            </div>
+            <p className="text-sm text-gray-400">
+              {t("messages.participants_info") ||
+                "Participants will appear here once they join the game"}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

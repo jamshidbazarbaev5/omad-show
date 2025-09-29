@@ -23,7 +23,9 @@ import {
   Sparkles,
   Zap,
   // Star,Star
-  Coins, Gem, Star,
+  Coins,
+  Gem,
+  Star,
   // Gem,
 } from "lucide-react";
 
@@ -42,6 +44,29 @@ interface Prize {
   ordering?: number;
 }
 
+interface Client {
+  id: number;
+  full_name: string;
+  phone_number: string;
+  total_bonuses: number;
+}
+
+interface GameWinner {
+  id: number;
+  prize: {
+    id: number;
+    name: string;
+    type: "item" | "money";
+    image: string;
+  };
+  client: {
+    id: number;
+    full_name: string;
+    phone_number: string;
+  };
+  awarded_at: string;
+}
+
 // Prize tier colors based on ordering/rarity
 const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
   const order = prize.ordering || 1;
@@ -55,7 +80,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-yellow-300",
       glow: "shadow-yellow-400/50",
       particles: "yellow",
-      icon: <Crown className="h-8 w-8" />,
+      icon: Crown,
       rarity: t("lottery.rarity.legendary"),
     };
   } else if (order <= 4) {
@@ -67,7 +92,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-purple-300",
       glow: "shadow-purple-400/50",
       particles: "purple",
-      icon: <Gem className="h-8 w-8" />,
+      icon: Gem,
       rarity: t("lottery.rarity.epic"),
     };
   } else if (order <= 6) {
@@ -79,7 +104,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
       textColor: "text-blue-300",
       glow: "shadow-blue-400/50",
       particles: "blue",
-      icon: <Star className="h-8 w-8" />,
+      icon: Star,
       rarity: t("lottery.rarity.rare"),
     };
   }
@@ -92,12 +117,7 @@ const getPrizeTheme = (prize: Prize, t: (key: string) => string) => {
     textColor: "text-green-300",
     glow: "shadow-green-400/50",
     particles: "green",
-    icon:
-      prize.type === "money" ? (
-        <Coins className="h-8 w-8" />
-      ) : (
-        <Gift className="h-8 w-8" />
-      ),
+    icon: prize.type === "money" ? Coins : Gift,
     rarity: t("lottery.rarity.common"),
   };
 };
@@ -225,6 +245,11 @@ export default function GameDrawPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showWinnerEffects, setShowWinnerEffects] = useState(false);
   const [drawError, setDrawError] = useState<string | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [winners, setWinners] = useState<GameWinner[]>([]);
+  const [gameFinishedMessage, setGameFinishedMessage] = useState<string | null>(
+    null,
+  );
 
   // API Mutations
   const { mutate: startGame, isPending: isStarting } = useStartGame();
@@ -235,7 +260,21 @@ export default function GameDrawPage() {
   useEffect(() => {
     if (gameId) {
       startGame(gameId, {
-        onSuccess: (data) => setGameState(data),
+        onSuccess: (data) => {
+          setGameState(data);
+          // Set clients data if available
+          if ("clients" in data) {
+            setClients(data.clients || []);
+          }
+          // Set winners data if game is finished
+          if ("winners" in data) {
+            setWinners(data.winners || []);
+          }
+          // Set finish message if available
+          if ("message" in data) {
+            setGameFinishedMessage(data.message || null);
+          }
+        },
         onError: () => {
           toast.error(t("messages.error.game_not_found"));
           setTimeout(() => navigate("/games"), 2000);
@@ -253,7 +292,9 @@ export default function GameDrawPage() {
     setTimeout(() => {
       drawWinner(gameId, {
         onSuccess: (data) => {
-          setWinner(data.winner);
+          if (data.winner) {
+            setWinner(data.winner);
+          }
           // Update game state with the next prize
           setGameState((prev) =>
             prev
@@ -263,6 +304,15 @@ export default function GameDrawPage() {
                 }
               : null,
           );
+
+          // Check if game is finished and handle winners
+          if (data.winners) {
+            setWinners(data.winners);
+          }
+          if (data.message) {
+            setGameFinishedMessage(data.message);
+          }
+
           setShowConfetti(true);
           setShowWinnerEffects(true);
           setDrawError(null);
@@ -345,12 +395,10 @@ export default function GameDrawPage() {
   } = gameState;
   const isGameOver = !current_prize;
   const prizeTheme = current_prize ? getPrizeTheme(current_prize, t) : null;
-  const isGameFinished = game.status === "finished";
+  const isGameFinished = game.status === "finished" || winners.length > 0;
   const isGameDraft = game.status === "draft";
   const hasNoEligibleClients = eligible_clients_count === 0;
 
-  // @ts-ignore
-  // @ts-ignore
   return (
     <div className="relative min-h-screen overflow-hidden">
       <BackgroundEffects />
@@ -380,133 +428,155 @@ export default function GameDrawPage() {
       <motion.div
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        className="absolute top-6 left-6 z-20"
+        className="absolute top-20 left-6 z-20 group"
       >
         <Button
           variant="outline"
           onClick={handleBackToGames}
-          className="text-white border-white/30 hover:bg-white/10 hover:text-white backdrop-blur-sm bg-white/5"
+          className="text-white border-white/30 hover:bg-white/10 hover:text-white backdrop-blur-sm bg-white/5 transition-all duration-300 overflow-hidden group-hover:w-auto w-12 h-12"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          {t("lottery.back_to_games")}
+          <ArrowLeft className="h-4 w-4 flex-shrink-0" />
+          <span className="ml-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 max-w-0 group-hover:max-w-xs">
+            {t("lottery.back_to_games")}
+          </span>
         </Button>
       </motion.div>
 
-      {/* Main Content */}
-      <div className="flex flex-col h-screen items-center justify-center text-white p-8 z-10 relative">
-        {/* Game Title */}
-        <motion.div
-          className="text-center mb-8"
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, type: "spring" }}
-        >
-          <h1 className="text-6xl font-black mb-2 bg-gradient-to-r from-yellow-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            {game.name}
-          </h1>
-          <div className="space-y-2">
-            <motion.div
-              className="flex items-center justify-center space-x-2 text-xl text-cyan-300"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <Sparkles className="h-6 w-6" />
-              <span>
-                {participating_clients_count} {t("lottery.players_ready")}
-              </span>
-              <Sparkles className="h-6 w-6" />
-            </motion.div>
+      {/* Main Layout */}
+      <div className="flex h-screen text-white z-10 relative">
+        {/* Left Sidebar - Participating Clients */}
+        <div className="w-80 pt-20 px-6 pb-6 overflow-y-auto">
+          <ParticipatingClientsDisplay clients={clients} />
+        </div>
 
-            {/* Show detailed client info when there's a mismatch */}
-            {/*{participating_clients_count > 0 &&*/}
-            {/*  eligible_clients_count !== participating_clients_count && (*/}
-            {/*    <motion.div*/}
-            {/*      className="flex items-center justify-center space-x-4 text-sm text-gray-300 mt-2"*/}
-            {/*      initial={{ opacity: 0, y: 10 }}*/}
-            {/*      animate={{ opacity: 1, y: 0 }}*/}
-            {/*      transition={{ delay: 0.2 }}*/}
-            {/*    >*/}
-            {/*      <span className="bg-gray-800/50 px-3 py-1 rounded-full">*/}
-            {/*        {t("lottery.eligible_clients")}: {eligible_clients_count}*/}
-            {/*      </span>*/}
-            {/*      <span className="bg-gray-800/50 px-3 py-1 rounded-full">*/}
-            {/*        {t("lottery.total_participants")}:{" "}*/}
-            {/*        {participating_clients_count}*/}
-            {/*      </span>*/}
-            {/*    </motion.div>*/}
-            {/*        */}
-            {/*  )}*/}
-
-            {/* Show eligible clients count if it's 0 */}
-            {hasNoEligibleClients && (
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col items-center justify-center p-8">
+          {/* Game Title */}
+          <motion.div
+            className="text-center mb-8"
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, type: "spring" }}
+          >
+            <h1 className="text-6xl font-black mb-2 bg-gradient-to-r from-yellow-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              {game.name}
+            </h1>
+            <div className="space-y-2">
               <motion.div
-                className="flex items-center justify-center space-x-2 text-lg text-red-400"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                className="flex items-center justify-center space-x-2 text-xl text-cyan-300"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
               >
-                <span className="bg-red-900/30 px-4 py-2 rounded-full border border-red-400/30">
-                  {t("lottery.no_eligible_clients")}: {eligible_clients_count}
+                <Sparkles className="h-6 w-6" />
+                <span>
+                  {participating_clients_count} {t("lottery.players_ready")}
                 </span>
+                <Sparkles className="h-6 w-6" />
               </motion.div>
-            )}
 
-            {/* Show game status if finished */}
-            {isGameFinished && (
-              <motion.div
-                className="flex items-center justify-center space-x-2 text-lg text-orange-400"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <span className="bg-orange-900/30 px-4 py-2 rounded-full border border-orange-400/30">
-                  {t("lottery.game_status")}: {t("lottery.status_finished")}
-                </span>
-              </motion.div>
-            )}
+              {/* Show detailed client info when there's a mismatch */}
+              {/*{participating_clients_count > 0 &&*/}
+              {/*  eligible_clients_count !== participating_clients_count && (*/}
+              {/*    <motion.div*/}
+              {/*      className="flex items-center justify-center space-x-4 text-sm text-gray-300 mt-2"*/}
+              {/*      initial={{ opacity: 0, y: 10 }}*/}
+              {/*      animate={{ opacity: 1, y: 0 }}*/}
+              {/*      transition={{ delay: 0.2 }}*/}
+              {/*    >*/}
+              {/*      <span className="bg-gray-800/50 px-3 py-1 rounded-full">*/}
+              {/*        {t("lottery.eligible_clients")}: {eligible_clients_count}*/}
+              {/*      </span>*/}
+              {/*      <span className="bg-gray-800/50 px-3 py-1 rounded-full">*/}
+              {/*        {t("lottery.total_participants")}:{" "}*/}
+              {/*        {participating_clients_count}*/}
+              {/*      </span>*/}
+              {/*    </motion.div>*/}
+              {/*        */}
+              {/*  )}*/}
 
-            {/* Show game status if draft */}
-            {isGameDraft && (
-              <motion.div
-                className="flex items-center justify-center space-x-2 text-lg text-blue-400"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <span className="bg-blue-900/30 px-4 py-2 rounded-full border border-blue-400/30">
-                  {t("lottery.game_status")}: {t("lottery.status_draft")}
-                </span>
-              </motion.div>
+              {/* Show eligible clients count if it's 0 */}
+              {hasNoEligibleClients && (
+                <motion.div
+                  className="flex items-center justify-center space-x-2 text-lg text-red-400"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <span className="bg-red-900/30 px-4 py-2 rounded-full border border-red-400/30">
+                    {t("lottery.no_eligible_clients")}: {eligible_clients_count}
+                  </span>
+                </motion.div>
+              )}
+
+              {/* Show game status if finished */}
+              {isGameFinished && (
+                <motion.div
+                  className="flex items-center justify-center space-x-2 text-lg text-orange-400"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <span className="bg-orange-900/30 px-4 py-2 rounded-full border border-orange-400/30">
+                    {t("lottery.game_status")}: {t("lottery.status_finished")}
+                  </span>
+                </motion.div>
+              )}
+
+              {/* Show game status if draft */}
+              {isGameDraft && (
+                <motion.div
+                  className="flex items-center justify-center space-x-2 text-lg text-blue-400"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <span className="bg-blue-900/30 px-4 py-2 rounded-full border border-blue-400/30">
+                    {t("lottery.game_status")}: {t("lottery.status_draft")}
+                  </span>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Game Content */}
+          <AnimatePresence mode="wait">
+            {drawError ? (
+              <ErrorDisplay error={drawError} onBack={handleBackToGames} />
+            ) : isGameOver ? (
+              <GameOverScreen onBack={handleBackToGames} />
+            ) : isDrawing ? (
+              <DrawingAnimation prizeTheme={prizeTheme} />
+            ) : winner ? (
+              <WinnerDisplay
+                winner={winner}
+                onNext={handleNext}
+                isLoading={isLoadingNext}
+                hasNextPrize={!!current_prize}
+                prizeTheme={prizeTheme}
+              />
+            ) : (
+              <PrizeDisplay
+                prize={current_prize}
+                onDraw={handleDraw}
+                isLoading={isDrawingWinner}
+                prizeTheme={prizeTheme}
+                canDraw={
+                  !hasNoEligibleClients && !isGameFinished && !isGameDraft
+                }
+              />
             )}
+          </AnimatePresence>
+        </div>
+
+        {/* Right Sidebar - Winners */}
+        {isGameFinished && (
+          <div className="w-80 pt-20 px-6 pb-6 overflow-y-auto">
+            <WinnersDisplay
+              winners={winners}
+              gameFinishedMessage={gameFinishedMessage}
+            />
           </div>
-        </motion.div>
-
-        {/* Game Content */}
-        <AnimatePresence mode="wait">
-          {drawError ? (
-            <ErrorDisplay error={drawError} onBack={handleBackToGames} />
-          ) : isGameOver ? (
-            <GameOverScreen onBack={handleBackToGames} />
-          ) : isDrawing ? (
-            <DrawingAnimation prizeTheme={prizeTheme} />
-          ) : winner ? (
-            <WinnerDisplay
-              winner={winner}
-              onNext={handleNext}
-              isLoading={isLoadingNext}
-              hasNextPrize={!!current_prize}
-              prizeTheme={prizeTheme}
-            />
-          ) : (
-            <PrizeDisplay
-              prize={current_prize}
-              onDraw={handleDraw}
-              isLoading={isDrawingWinner}
-              prizeTheme={prizeTheme}
-              canDraw={!hasNoEligibleClients && !isGameFinished && !isGameDraft}
-            />
-          )}
-        </AnimatePresence>
+        )}
       </div>
     </div>
   );
@@ -532,7 +602,7 @@ const PrizeDisplay = ({
     textColor: string;
     glow: string;
     particles: string;
-    icon: any;
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     rarity: string;
   } | null;
 }) => {
@@ -554,7 +624,7 @@ const PrizeDisplay = ({
             transition={{ duration: 2, repeat: Infinity }}
             className="flex items-center justify-center mb-4"
           >
-            {prizeTheme?.icon}
+            {prizeTheme?.icon && <prizeTheme.icon className="h-8 w-8" />}
           </motion.div>
           <CardTitle
             className={`${prizeTheme?.textColor} text-3xl font-black flex items-center justify-center`}
@@ -668,9 +738,8 @@ const WinnerDisplay = ({
     cardBg: string;
     textColor: string;
     glow: string;
-
     particles: string;
-    icon: any;
+    icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     rarity: string;
   } | null;
 }) => {
@@ -715,7 +784,6 @@ const WinnerDisplay = ({
               {winner.full_name}
             </h2>
             <p className="text-xl text-cyan-300 mb-2">{winner.phone_number}</p>
-
           </motion.div>
 
           <motion.div
@@ -776,7 +844,7 @@ const DrawingAnimation = ({
     textColor: string;
     glow: string;
     particles: string;
-    icon?:  any;
+    icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     rarity: string;
   } | null;
 }) => {
@@ -948,6 +1016,176 @@ const ErrorDisplay = ({
               {t("lottery.back_to_games")}
             </Button>
           </motion.div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
+const ParticipatingClientsDisplay = ({ clients }: { clients: Client[] }) => {
+  const { t } = useTranslation();
+
+  if (clients.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.3 }}
+      className="mb-6"
+    >
+      <Card className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 backdrop-blur-lg border-2 border-cyan-400/20 text-white shadow-xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
+            <Star className="h-5 w-5 text-cyan-400" />
+            {t("lottery.participating_clients")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {clients.map((client, index) => (
+              <motion.div
+                key={client.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white/5 p-3 rounded-lg backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-cyan-300 truncate">
+                      {client.full_name}
+                    </h3>
+                    <p className="text-xs text-gray-400 truncate">
+                      {client.phone_number}
+                    </p>
+                  </div>
+                  <div className="text-right ml-2">
+                    <div className="flex items-center gap-1 text-yellow-400">
+                      <Coins className="h-3 w-3" />
+                      <span className="text-sm font-bold">
+                        {client.total_bonuses}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
+const WinnersDisplay = ({
+  winners,
+  gameFinishedMessage,
+}: {
+  winners: GameWinner[];
+  gameFinishedMessage: string | null;
+}) => {
+  const { t } = useTranslation();
+
+  if (winners.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8, type: "spring" }}
+      className="mb-6"
+    >
+      {gameFinishedMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-lg border-2 border-yellow-400/30 rounded-xl p-4">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 text-lg font-bold text-yellow-400 mb-1">
+                <Sparkles className="h-5 w-5" />✨ Все призы распределены! ✨
+              </div>
+              <p className="text-sm text-orange-300">Спасибо за лотерею!</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 backdrop-blur-lg border-2 border-green-400/20 text-white shadow-xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-green-400" />
+            {t("lottery.winners")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {winners.map((winner, index) => (
+              <motion.div
+                key={winner.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-gradient-to-r from-green-800/20 to-emerald-800/20 p-3 rounded-lg backdrop-blur-sm border border-green-400/20"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0">
+                    <motion.div
+                      animate={{ rotate: [0, 10, -10, 0] }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: index * 0.5,
+                      }}
+                    >
+                      <Crown className="h-6 w-6 text-yellow-400" />
+                    </motion.div>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-bold text-green-300 truncate">
+                          {winner.client.full_name}
+                        </h3>
+                        <p className="text-xs text-green-400 truncate">
+                          {winner.client.phone_number}
+                        </p>
+                      </div>
+                      <div className="text-right text-xs text-gray-400 ml-2">
+                        {winner.awarded_at}
+                      </div>
+                    </div>
+
+                    <div className="bg-white/5 p-2 rounded border border-white/10">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={winner.prize.image}
+                            alt={winner.prize.name}
+                            className="w-8 h-8 object-cover rounded border border-yellow-400/50"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-semibold text-yellow-300 truncate">
+                            {winner.prize.name}
+                          </h4>
+                          <div className="flex items-center gap-1 text-yellow-400">
+                            <Gift className="h-3 w-3" />
+                            <span className="text-xs capitalize">
+                              {winner.prize.type}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </motion.div>

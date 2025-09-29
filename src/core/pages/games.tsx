@@ -70,8 +70,8 @@ export default function GamesPage() {
     ...(isSuperAdmin
       ? [
           {
-            header: t("forms.store") || "Store",
-            accessorKey: "store",
+            header: t("forms.store_name") || "Store",
+            accessorKey: (row:any) => row.store.name,
           },
         ]
       : []),

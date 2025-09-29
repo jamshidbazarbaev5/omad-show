@@ -50,7 +50,7 @@ export const LotteryGame: React.FC<LotteryGameProps> = ({
     try {
       const response = await startGameMutation.mutateAsync(gameId);
       setGameData(response);
-      setCurrentPrize(response.current_prize);
+      setCurrentPrize(response.current_prize || null);
       setGameStarted(true);
       toast.success(t("messages.success.game_created"));
     } catch {
@@ -67,8 +67,8 @@ export const LotteryGame: React.FC<LotteryGameProps> = ({
     setTimeout(async () => {
       try {
         const response = await drawGameMutation.mutateAsync(gameId);
-        setWinner(response.winner);
-        setCurrentPrize(response.current_prize);
+        setWinner(response.winner || null);
+        setCurrentPrize(response.current_prize || null);
         setDrawnPrizes((prev) => [...prev, currentPrize.id]);
         setShowWinner(true);
         setIsDrawing(false);

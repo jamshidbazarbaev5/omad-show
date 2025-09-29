@@ -58,15 +58,21 @@ export default function PurchasesPage() {
 
   // Check if user has permission to view purchases
   const canViewPurchases =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller" || currentUser?.role==='superadmin';
+    currentUser?.role === "store_admin" ||
+    currentUser?.role === "seller" ||
+    currentUser?.role === "superadmin";
 
   // Check if user has permission to create purchases
   const canCreatePurchases =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller" || currentUser?.role==='superadmin';
+    currentUser?.role === "store_admin" ||
+    currentUser?.role === "seller" ||
+    currentUser?.role === "superadmin";
 
   // Check if user has permission to edit/delete purchases
   const canManagePurchases =
-    currentUser?.role === "store_admin" || currentUser?.role === "seller"|| currentUser?.role==='superadmin';
+    currentUser?.role === "store_admin" ||
+    currentUser?.role === "seller" ||
+    currentUser?.role === "superadmin";
   if (!canViewPurchases) {
     return (
       <div className="container mx-auto py-6">
@@ -168,7 +174,6 @@ export default function PurchasesPage() {
             <ShoppingCart className="h-6 w-6" />
             {t("navigation.purchases") || "Purchases"}
           </h1>
-
         </div>
         {canCreatePurchases && (
           <Button onClick={() => navigate("/purchases/create")}>
@@ -250,7 +255,7 @@ export default function PurchasesPage() {
                         </div>
                       </TableCell>
                       <TableCell className="font-semibold text-green-600">
-                        {formatCurrency(purchase.amount)}
+                        {formatCurrency(parseFloat(purchase.amount))}
                       </TableCell>
                       <TableCell>
                         {purchase.created_at && formatDate(purchase.created_at)}
@@ -283,7 +288,7 @@ export default function PurchasesPage() {
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
                                     {t("dialogs.confirm_delete.purchase") ||
-                                      `This will permanently delete the purchase of ${formatCurrency(purchase.amount)}. This action cannot be undone.`}
+                                      `This will permanently delete the purchase of ${formatCurrency(parseFloat(purchase.amount))}. This action cannot be undone.`}
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

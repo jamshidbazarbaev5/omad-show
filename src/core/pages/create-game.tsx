@@ -56,6 +56,9 @@ interface GameFormData {
   name: string;
   description: string;
   store?: number;
+  all_clients: boolean;
+  from_bonus?: number;
+  to_bonus?: number;
 }
 
 export default function CreateGamePage() {
@@ -79,13 +82,20 @@ export default function CreateGamePage() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<GameFormData>({
     defaultValues: {
       name: "",
       description: "",
       store: isSuperAdmin ? undefined : userStore,
+      all_clients: true,
+      from_bonus: 10,
+      to_bonus: 20,
     },
   });
+
+  const watchAllClients = watch("all_clients");
+  const showBonusFields = watchAllClients === false;
 
   const onSubmit = (data: GameFormData) => {
     // Validate prizes
@@ -126,6 +136,14 @@ export default function CreateGamePage() {
     const storeId = isSuperAdmin ? data.store : userStore;
     if (storeId) {
       formData.append("store", storeId.toString());
+    }
+
+    // Add client selection data
+    const allClientsValue = data.all_clients === true;
+    formData.append("all_clients", allClientsValue.toString());
+    if (!allClientsValue) {
+      formData.append("from_bonus", (data.from_bonus || 10).toString());
+      formData.append("to_bonus", (data.to_bonus || 20).toString());
     }
 
     // Add prizes data
@@ -281,6 +299,97 @@ export default function CreateGamePage() {
                 </p>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Client Selection Section */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-lg font-semibold mb-4">
+            {t("forms.client_selection") || "Client Selection"}
+          </h2>
+
+          <div className="space-y-4">
+            {/* All Clients Radio Button */}
+            <div className="flex items-center space-x-3">
+              <input
+                type="radio"
+                id="all_clients_true"
+                {...register("all_clients")}
+                value="true"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              />
+              <label
+                htmlFor="all_clients_true"
+                className="text-sm font-medium text-gray-700"
+              >
+                {t("forms.all_clients") || "All Clients"}
+              </label>
+            </div>
+
+            {/* Specific Bonus Range Radio Button */}
+            <div className="flex items-center space-x-3">
+              <input
+                type="radio"
+                id="all_clients_false"
+                {...register("all_clients")}
+                value="false"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              />
+              <label
+                htmlFor="all_clients_false"
+                className="text-sm font-medium text-gray-700"
+              >
+                {t("forms.bonus_range_clients") || "Clients with Bonus Range"}
+              </label>
+            </div>
+
+            {/* Bonus Range Fields - Only show when all_clients is false */}
+            {showBonusFields && (
+              <div className="ml-7 grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("forms.from_bonus") || "From Bonus"} *
+                  </label>
+                  <input
+                    type="number"
+                    {...register("from_bonus", {
+                      required: showBonusFields,
+                      min: 1,
+                      max: 999,
+                    })}
+                    placeholder="10"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {errors.from_bonus && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {t("validation.from_bonus_required") ||
+                        "From bonus is required"}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("forms.to_bonus") || "To Bonus"} *
+                  </label>
+                  <input
+                    type="number"
+                    {...register("to_bonus", {
+                      required: showBonusFields,
+                      min: 1,
+                      max: 999,
+                    })}
+                    placeholder="20"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {errors.to_bonus && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {t("validation.to_bonus_required") ||
+                        "To bonus is required"}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

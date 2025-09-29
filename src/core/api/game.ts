@@ -1,7 +1,7 @@
 import { createResourceApiHooks } from "../helpers/createResourceApi.ts";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "./api";
-import type { Game } from "./types";
+import type { Game, GameParticipants } from "./types";
 
 const GAME_URL = "games/";
 
@@ -17,7 +17,12 @@ export const {
 export interface GameStartResponse {
   game: {
     id: number;
-    store: number;
+    store: {
+      id: number;
+      name: string;
+      address: string;
+      created_at: string;
+    };
     name: string;
     description: string;
     status: string;
@@ -34,29 +39,67 @@ export interface GameStartResponse {
       image: string;
     }>;
   };
-  current_prize: {
+  current_prize?: {
     id: number;
     name: string;
     type: "item" | "money";
     image: string;
   };
   participating_clients_count: number;
-  eligible_clients_count: number;
+  eligible_clients_count?: number;
+  clients?: Array<{
+    id: number;
+    full_name: string;
+    phone_number: string;
+    total_bonuses: number;
+  }>;
+  winners?: Array<{
+    id: number;
+    prize: {
+      id: number;
+      name: string;
+      type: "item" | "money";
+      image: string;
+    };
+    client: {
+      id: number;
+      full_name: string;
+      phone_number: string;
+    };
+    awarded_at: string;
+  }>;
+  message?: string;
 }
 
 export interface GameDrawResponse {
-  winner: {
+  winner?: {
     store_client_id: number;
     full_name: string;
     phone_number: string;
     total_bonuses: number;
   };
-  current_prize: {
+  current_prize?: {
     id: number;
     name: string;
     type: "item" | "money";
     image: string;
   };
+  winners?: Array<{
+    id: number;
+    prize: {
+      id: number;
+      name: string;
+      type: "item" | "money";
+      image: string;
+    };
+    client: {
+      id: number;
+      full_name: string;
+      phone_number: string;
+    };
+    awarded_at: string;
+  }>;
+  message?: string;
 }
 
 export interface GameNextResponse {
@@ -115,5 +158,17 @@ export const useLockGame = () => {
       const response = await api.post(`${GAME_URL}${gameId}/lock/`);
       return response.data;
     },
+  });
+};
+
+// Get Game Participants API
+export const useGetGameParticipants = (gameId: number) => {
+  return useQuery<GameParticipants, Error>({
+    queryKey: ["game-participants", gameId],
+    queryFn: async () => {
+      const response = await api.get(`${GAME_URL}${gameId}/participants/`);
+      return response.data;
+    },
+    enabled: !!gameId,
   });
 };

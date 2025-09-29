@@ -92,7 +92,7 @@ const columns = (t: (key: string) => string) => [
   },
   {
     header: t("forms.store"),
-    accessorKey: "store_read.name",
+    accessorKey:(row:any) => row.store.name
   },
 ];
 
