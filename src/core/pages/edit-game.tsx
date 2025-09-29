@@ -4,7 +4,12 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { PrizeForm } from "../components/PrizeForm";
 import { toast } from "sonner";
-import { useGetGame, useUpdateGame, useGetGameParticipants } from "../api/game";
+import {
+  useGetGame,
+  useUpdateGame,
+  useGetGameParticipants,
+  useGetGameWinners,
+} from "../api/game";
 import { useGetStores } from "../api/store";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import type { Prize } from "../api/types";
@@ -45,6 +50,9 @@ export default function EditGamePage() {
   const { data: gameData, isLoading: gameLoading } = useGetGame(Number(id));
   const { data: participantsData, isLoading: participantsLoading } =
     useGetGameParticipants(Number(id));
+  const { data: winnersData, isLoading: winnersLoading } = useGetGameWinners(
+    Number(id),
+  );
   const [prizes, setPrizes] = useState<Prize[]>([]);
 
   // Handle stores data structure (could be array or paginated response)
@@ -63,6 +71,7 @@ export default function EditGamePage() {
     formState: { errors },
     reset,
     watch,
+    setValue,
   } = useForm<GameFormData>({
     defaultValues: {
       name: "",
@@ -83,7 +92,7 @@ export default function EditGamePage() {
       reset({
         name: gameData.name,
         description: gameData.description,
-        store: gameData.store,
+        store: gameData.store.id,
         all_clients: gameData.all_clients ?? true,
         from_bonus: gameData.from_bonus ?? 10,
         to_bonus: gameData.to_bonus ?? 20,
@@ -346,8 +355,8 @@ export default function EditGamePage() {
               <input
                 type="radio"
                 id="all_clients_true"
-                {...register("all_clients")}
-                value="true"
+                checked={watchAllClients === true}
+                onChange={() => setValue("all_clients", true)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
               />
               <label
@@ -363,8 +372,8 @@ export default function EditGamePage() {
               <input
                 type="radio"
                 id="all_clients_false"
-                {...register("all_clients")}
-                value="false"
+                checked={watchAllClients === false}
+                onChange={() => setValue("all_clients", false)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
               />
               <label
@@ -564,6 +573,118 @@ export default function EditGamePage() {
             <p className="text-sm text-gray-400">
               {t("messages.participants_info") ||
                 "Participants will appear here once they join the game"}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Winners Section */}
+      <div className="bg-white rounded-lg shadow-sm border p-6 mt-8">
+        <h2 className="text-lg font-semibold mb-4">
+          {t("forms.winners") || "Game Winners"}
+        </h2>
+
+        {winnersLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <div className="text-gray-500">
+              {t("forms.loading") || "Loading winners..."}
+            </div>
+          </div>
+        ) : winnersData && winnersData.winners.length > 0 ? (
+          <>
+            <div className="mb-4 flex flex-wrap gap-4 text-sm">
+              <div className="bg-purple-100 px-3 py-1 rounded">
+                <span className="font-medium">
+                  {t("status.game_name") || "Game"}:
+                </span>
+                <span className="ml-1">{winnersData.game}</span>
+              </div>
+              <div className="bg-green-100 px-3 py-1 rounded">
+                <span className="font-medium">
+                  {t("status.total_winners") || "Total Winners"}:
+                </span>
+                <span className="ml-1">{winnersData.total_winners}</span>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.id") || "ID"}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.winner") || "Winner"}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.phone_number") || "Phone Number"}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.prize") || "Prize"}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.prize_type") || "Prize Type"}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t("table.awarded_at") || "Awarded At"}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {winnersData.winners.map((winner) => (
+                    <tr key={winner.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {winner.id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {winner.client.full_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {winner.client.phone_number}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          {winner.prize.image && (
+                            <img
+                              src={winner.prize.image}
+                              alt={winner.prize.name}
+                              className="w-8 h-8 rounded-full mr-3 object-cover"
+                            />
+                          )}
+                          <span>{winner.prize.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            winner.prize.type === "money"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {winner.prize.type === "money"
+                            ? t("prize_types.money") || "Money"
+                            : t("prize_types.item") || "Item"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {new Date(winner.awarded_at).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <div className="text-gray-500 mb-2">
+              {t("messages.no_winners") || "No winners found"}
+            </div>
+            <p className="text-sm text-gray-400">
+              {t("messages.winners_info") ||
+                "Winners will appear here once the game draws are completed"}
             </p>
           </div>
         )}

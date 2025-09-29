@@ -28,7 +28,10 @@
     "viewColors": "Просмотр цветов",
     "createColor": "Создать цвет"
   },
+
   "forms": {
+    "winners": "Победители",
+    "participants": "Участники",
     "client_selection": "Тип клиента",
     "all_clients": "Все клиенти",
     "bonus_range_clients": "Диапазон",
@@ -254,6 +257,9 @@
     "lucky_draw": "Розыгрыш"
   },
   "status": {
+    "game_name": "Название игры",
+    "total_winners": "Всего победителей",
+    "game_status": "Статус",
     "active": "Активный",
     "inactive": "Неактивный",
     "pending": "В ожидании",
@@ -261,7 +267,8 @@
     "cancelled": "Отменено",
     "draft": "Черновик",
     "locked": "Заблокирована",
-    "finished": "Завершена"
+    "finished": "Завершена",
+    "total_participants": "Всего участников"
   },
   "summary": {
     "total_prizes": "Всего призов: {{count}}",
@@ -313,6 +320,7 @@
     "set": "Установить курс"
   },
   "actions": {
+    "back": "Назад",
     "add_purchase": "Добавить покупку",
     "create_purchase": "Добавить покупку",
     "edit": "Изменить",
@@ -381,6 +389,7 @@
     "bonuses": "бонусов"
   },
   "labels": {
+    "status": "Статус",
     "total_amount": "Общая сумма",
     "total_purchases": "Всего покупок",
     "total_bonuses": "Всего бонусов",
@@ -402,6 +411,10 @@
     "next": "Следующая"
   },
   "table": {
+    "winner": "Победитель",
+    "prize": "Приз",
+    "prize_type": "Тип",
+    "awarded_at": "Дата",
     "id": "ID",
     "full_name": "Полное имя",
     "phone_number": "Номер телефона",

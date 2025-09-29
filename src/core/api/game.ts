@@ -1,7 +1,7 @@
 import { createResourceApiHooks } from "../helpers/createResourceApi.ts";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "./api";
-import type { Game, GameParticipants } from "./types";
+import type { Game, GameParticipants, GameWinners } from "./types";
 
 const GAME_URL = "games/";
 
@@ -167,6 +167,18 @@ export const useGetGameParticipants = (gameId: number) => {
     queryKey: ["game-participants", gameId],
     queryFn: async () => {
       const response = await api.get(`${GAME_URL}${gameId}/participants/`);
+      return response.data;
+    },
+    enabled: !!gameId,
+  });
+};
+
+// Get Game Winners API
+export const useGetGameWinners = (gameId: number) => {
+  return useQuery<GameWinners, Error>({
+    queryKey: ["game-winners", gameId],
+    queryFn: async () => {
+      const response = await api.get(`${GAME_URL}${gameId}/winners/`);
       return response.data;
     },
     enabled: !!gameId,

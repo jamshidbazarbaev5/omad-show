@@ -83,6 +83,7 @@ export default function CreateGamePage() {
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<GameFormData>({
     defaultValues: {
       name: "",
@@ -314,8 +315,8 @@ export default function CreateGamePage() {
               <input
                 type="radio"
                 id="all_clients_true"
-                {...register("all_clients")}
-                value="true"
+                checked={watchAllClients === true}
+                onChange={() => setValue("all_clients", true)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
               />
               <label
@@ -331,8 +332,8 @@ export default function CreateGamePage() {
               <input
                 type="radio"
                 id="all_clients_false"
-                {...register("all_clients")}
-                value="false"
+                checked={watchAllClients === false}
+                onChange={() => setValue("all_clients", false)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
               />
               <label

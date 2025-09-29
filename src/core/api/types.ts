@@ -113,3 +113,25 @@ export interface GameParticipants {
   participants_count: number;
   participants: Participant[];
 }
+
+export interface Winner {
+  id: number;
+  prize: {
+    id: number;
+    name: string;
+    image: string;
+    type: "item" | "money";
+  };
+  client: {
+    id: number;
+    full_name: string;
+    phone_number: string;
+  };
+  awarded_at: string;
+}
+
+export interface GameWinners {
+  game: string;
+  total_winners: number;
+  winners: Winner[];
+}
