@@ -65,7 +65,14 @@
     "casing_type_straight": "Tuwrı",
     "formula_1": "Formula 1",
     "formula_2": "Formula 2",
-    "status": "Status"
+    "status": "Status",
+    "client_selection": "Kliyent sayllaw",
+    "all_clients": "Barlıq kliyentler",
+    "bonus_range_clients": "Bonus diapazonındaǧı kliyentler",
+    "from_bonus": "Bonus baslanıwı",
+    "to_bonus": "Bonus aqlasıwı",
+    "loading": "Júkleniwde...",
+    "participants": "Qatnaswshılar"
   },
   "placeholders": {
     "enter_phone_number": "Telefon nomerın kiritińiz",
@@ -179,6 +186,10 @@
     "required_fields": "Atı, túri hám sanı hárbir sıylıq ushın miyadli",
     "image_selected": "Súwret saylaldı: ",
     "contact_admin": "Oyınlardı jaratıw ushın dúkanga tayınlanıwıńız kerek. Administratorǧa murájaat etiń.",
+    "no_purchase_history": "Satıp alıw tariyx tabılmadı",
+    "no_participants": "Qatnaswshılar tabılmadı",
+    "participants_info": "Qatnaswshılar oyınǧa qosılǧandan keyin bul jerde kórsetiledi",
+    "game_not_found": "Oyın tabılmadı",
     "error": {
       "no_prizes": "Keminde bir sıylıq kerek",
       "prize_name_required": "Sıylıq #{{index}} atı miyadli",
@@ -260,7 +271,9 @@
     "positive_number": "Onımlı sandı kiritińiz",
     "game_name_required": "Oyın atı miyadli",
     "description_required": "Sıpatlama miyadli",
-    "store_required": "Dúkannı sayllaw miyadli"
+    "store_required": "Dúkannı sayllaw miyadli",
+    "from_bonus_required": "'Bonus baslanıwı' maýdanı miyadli",
+    "to_bonus_required": "'Bonus aqlasıwı' maýdanı miyadli"
   },
   "currency": {
     "set_rate": "Walýuta kursın belgilew",
@@ -331,5 +344,32 @@
     "participating_clients": "Qatnaswshı klientler",
     "winners": "🏆 Jeńiwshiler",
     "bonuses": "bonuslar"
+  },
+  "labels": {
+    "total_amount": "Jámi summa",
+    "total_purchases": "Jámi satıp alıwlar",
+    "total_bonuses": "Jámi bonuslar",
+    "purchase_history": "Satıp alıw tariyx",
+    "date": "Kún",
+    "amount": "Summa",
+    "bonus_awarded": "Bonus berildi",
+    "store": "Dúkan",
+    "created_by": "Jaratqan",
+    "active": "Aktiv",
+    "inactive": "Aktiv emes"
+  },
+  "pages": {
+    "purchase_history": "Satıp alıw tariyx"
+  },
+  "pagination": {
+    "showing": "{{from}} - {{to}} kórsetildi, jámi {{total}}",
+    "previous": "Aldınǧı",
+    "next": "Keyingi"
+  },
+  "table": {
+    "id": "ID",
+    "full_name": "Tolıq atı",
+    "phone_number": "Telefon nomerı",
+    "total_bonuses": "Jámi bonuslar"
   }
 }

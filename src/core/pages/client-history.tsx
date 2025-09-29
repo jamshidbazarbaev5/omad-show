@@ -202,7 +202,7 @@ export default function ClientHistoryPage() {
                     <TableRow key={purchase.id}>
                       <TableCell>
                         {new Date(purchase.created_at).toLocaleDateString(
-                          "en-US",
+                          "ru-RU",
                           {
                             year: "numeric",
                             month: "short",
