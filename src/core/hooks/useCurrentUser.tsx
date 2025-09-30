@@ -5,7 +5,11 @@ export interface CurrentUser {
   phone_number: string;
   full_name: string;
   role: string;
-  store: number;
+  store: {
+    id: number;
+    name: string;
+    email: string;
+  }
 }
 
 /**

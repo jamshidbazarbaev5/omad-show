@@ -245,7 +245,7 @@ export default function GameDrawPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showWinnerEffects, setShowWinnerEffects] = useState(false);
   const [drawError, setDrawError] = useState<string | null>(null);
-  const [clients, setClients] = useState<Client[]>([]);
+  const [_clients, setClients] = useState<Client[]>([]);
   const [winners, setWinners] = useState<GameWinner[]>([]);
   const [gameFinishedMessage, setGameFinishedMessage] = useState<string | null>(
     null,
@@ -445,9 +445,9 @@ export default function GameDrawPage() {
       {/* Main Layout */}
       <div className="flex h-screen text-white z-10 relative">
         {/* Left Sidebar - Participating Clients */}
-        <div className="w-80 pt-20 px-6 pb-6 overflow-y-auto">
-          <ParticipatingClientsDisplay clients={clients} />
-        </div>
+        {/*<div className="w-80 pt-20 px-6 pb-6 overflow-y-auto">*/}
+        {/*  <ParticipatingClientsDisplay clients={clients} />*/}
+        {/*</div>*/}
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col items-center justify-center p-8">
@@ -462,17 +462,7 @@ export default function GameDrawPage() {
               {game.name}
             </h1>
             <div className="space-y-2">
-              <motion.div
-                className="flex items-center justify-center space-x-2 text-xl text-cyan-300"
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Sparkles className="h-6 w-6" />
-                <span>
-                  {participating_clients_count} {t("lottery.players_ready")}
-                </span>
-                <Sparkles className="h-6 w-6" />
-              </motion.div>
+
 
               {/* Show detailed client info when there's a mismatch */}
               {/*{participating_clients_count > 0 &&*/}
@@ -1022,61 +1012,61 @@ const ErrorDisplay = ({
   );
 };
 
-const ParticipatingClientsDisplay = ({ clients }: { clients: Client[] }) => {
-  const { t } = useTranslation();
-
-  if (clients.length === 0) return null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.3 }}
-      className="mb-6"
-    >
-      <Card className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 backdrop-blur-lg border-2 border-cyan-400/20 text-white shadow-xl">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
-            <Star className="h-5 w-5 text-cyan-400" />
-            {t("lottery.participating_clients")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {clients.map((client, index) => (
-              <motion.div
-                key={client.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white/5 p-3 rounded-lg backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-cyan-300 truncate">
-                      {client.full_name}
-                    </h3>
-                    <p className="text-xs text-gray-400 truncate">
-                      {client.phone_number}
-                    </p>
-                  </div>
-                  <div className="text-right ml-2">
-                    <div className="flex items-center gap-1 text-yellow-400">
-                      <Coins className="h-3 w-3" />
-                      <span className="text-sm font-bold">
-                        {client.total_bonuses}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-};
+// const ParticipatingClientsDisplay = ({ clients }: { clients: Client[] }) => {
+//   const { t } = useTranslation();
+//
+//   if (clients.length === 0) return null;
+//
+//   return (
+//     <motion.div
+//       initial={{ opacity: 0, x: -20 }}
+//       animate={{ opacity: 1, x: 0 }}
+//       transition={{ delay: 0.3 }}
+//       className="mb-6"
+//     >
+//       <Card className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 backdrop-blur-lg border-2 border-cyan-400/20 text-white shadow-xl">
+//         <CardHeader className="pb-3">
+//           <CardTitle className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
+//             <Star className="h-5 w-5 text-cyan-400" />
+//             {t("lottery.participating_clients")}
+//           </CardTitle>
+//         </CardHeader>
+//         <CardContent>
+//           <div className="space-y-2 max-h-96 overflow-y-auto">
+//             {clients.map((client, index) => (
+//               <motion.div
+//                 key={client.id}
+//                 initial={{ opacity: 0, x: -20 }}
+//                 animate={{ opacity: 1, x: 0 }}
+//                 transition={{ delay: index * 0.1 }}
+//                 className="bg-white/5 p-3 rounded-lg backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all"
+//               >
+//                 <div className="flex justify-between items-center">
+//                   <div className="flex-1">
+//                     <h3 className="text-sm font-semibold text-cyan-300 truncate">
+//                       {client.full_name}
+//                     </h3>
+//                     <p className="text-xs text-gray-400 truncate">
+//                       {client.phone_number}
+//                     </p>
+//                   </div>
+//                   <div className="text-right ml-2">
+//                     <div className="flex items-center gap-1 text-yellow-400">
+//                       <Coins className="h-3 w-3" />
+//                       <span className="text-sm font-bold">
+//                         {client.total_bonuses}
+//                       </span>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             ))}
+//           </div>
+//         </CardContent>
+//       </Card>
+//     </motion.div>
+//   );
+// };
 
 const WinnersDisplay = ({
   winners,

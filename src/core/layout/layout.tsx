@@ -10,6 +10,12 @@ import {
   Trophy,
   type LucideIcon,
 } from "lucide-react";
+
+interface Store {
+  id: number;
+  name: string;
+  email?: string;
+}
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -200,47 +206,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                               Store Information
                             </div>
                             <div className="text-sm font-medium text-gray-800">
-                              Store #{currentUser.store}
+                              {typeof currentUser.store === "object"
+                                ? `${(currentUser.store as Store).name} (ID: ${(currentUser.store as Store).id})`
+                                : `Store #${currentUser.store}`}
                             </div>
                           </div>
                         )}
                       </div>
-                      <div className="py-1">
-                        <button
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setDropdownOpen(false);
-                            navigate("/profile");
-                          }}
-                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors cursor-pointer"
-                          style={{ pointerEvents: "auto" }}
-                        >
-                          <User size={16} className="text-gray-500" />
-                          {t("common.profile")}
-                        </button>
-                        <button
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setDropdownOpen(false);
-                            handleLogout();
-                          }}
-                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors cursor-pointer"
-                          style={{ pointerEvents: "auto" }}
-                        >
-                          <LogOut size={16} className="text-red-500" />
-                          {t("common.logout")}
-                        </button>
-                      </div>
+
                     </>
                   )}
                 </div>
@@ -478,19 +451,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           </div>
                         </div>
                         <div className="py-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDropdownOpen(false);
-                              navigate("/profile");
-                            }}
-                            className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                          >
-                            <User size={16} className="text-gray-500" />
-                            <span className="font-medium">
-                              {t("common.profile")}
-                            </span>
-                          </button>
+
                           <button
                             onClick={(e) => {
                               e.stopPropagation();

@@ -244,13 +244,13 @@ export default function GamesPage() {
                 {game.status !== 'finished' && (
                     <DropdownMenuItem onClick={() => handleStartGame(game)}>
                       <Play className="h-4 w-4 mr-2" />
-                      Play
+                      {t('status.play')}
                     </DropdownMenuItem>
                 )}
 
                 <DropdownMenuItem onClick={() => handleEdit(game)}>
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit
+                  {t('status.edit')}
                 </DropdownMenuItem>
                 {game.status !== 'finished' && (
                     <DropdownMenuItem
@@ -258,7 +258,7 @@ export default function GamesPage() {
                         className="text-green-600 hover:text-green-700"
                     >
                       <Unlock className="h-4 w-4 mr-2" />
-                      Activate
+                      {t('status.activate')}
                     </DropdownMenuItem>
                 )}
                 {game.status !== 'finished' && (
@@ -267,7 +267,7 @@ export default function GamesPage() {
                         className="text-orange-600 hover:text-orange-700"
                     >
                       <Lock className="h-4 w-4 mr-2" />
-                      Lock
+                      {t('status.lock')}
                     </DropdownMenuItem>
                 )
                 }
@@ -278,7 +278,7 @@ export default function GamesPage() {
                   variant="destructive"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
+                  {t('status.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

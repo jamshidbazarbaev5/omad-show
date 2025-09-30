@@ -218,6 +218,7 @@ export default function ClientsPage() {
                     <TableHead>
                       {t("forms.phone_number") || "Phone Number"}
                     </TableHead>
+                    <TableHead>{t("forms.bonuses") || "Bonuses"}</TableHead>
                     <TableHead className="text-right">
                       {t("forms.actions") || "Actions"}
                     </TableHead>
@@ -230,6 +231,25 @@ export default function ClientsPage() {
                         {client.full_name}
                       </TableCell>
                       <TableCell>{client.phone_number}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {client.stores && client.stores.length > 0 ? (
+                            client.stores.map((store: any) => (
+                              <Badge
+                                key={store.id}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {store.name}: {store.current_bonuses}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground text-sm">
+                              {t("forms.no_bonuses") || "No bonuses"}
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button

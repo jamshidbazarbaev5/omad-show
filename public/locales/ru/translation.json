@@ -30,6 +30,9 @@
   },
 
   "forms": {
+
+    "bonuses": "Бонусы",
+    "no_bonuses": "Нет бонуса ",
     "winners": "Победители",
     "participants": "Участники",
     "client_selection": "Тип клиента",
@@ -257,16 +260,21 @@
     "lucky_draw": "Розыгрыш"
   },
   "status": {
+    "play": "Запустить",
     "game_name": "Название игры",
     "total_winners": "Всего победителей",
     "game_status": "Статус",
     "active": "Активный",
+    "activate": "Активный",
     "inactive": "Неактивный",
+    "edit": "Изменить",
+    "delete": "Удалить",
     "pending": "В ожидании",
     "completed": "Завершено",
     "cancelled": "Отменено",
     "draft": "Черновик",
     "locked": "Заблокирована",
+    "lock": "Заблокировать",
     "finished": "Завершена",
     "total_participants": "Всего участников"
   },
