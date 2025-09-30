@@ -30,7 +30,10 @@
   },
 
   "forms": {
+    "store_details": "Инфо о магазине",
     "select_store": "Магазин",
+
+    "can_purchase": "Покупка",
     "select_status": "Статус",
     "bonuses": "Бонусы",
     "no_bonuses": "Нет бонуса ",
@@ -329,6 +332,7 @@
     "set": "Установить курс"
   },
   "actions": {
+    "clear_bonuses": "Очистить бонусы",
     "clear_filters": "Очистить фильтры",
     "back": "Назад",
     "add_purchase": "Добавить покупку",

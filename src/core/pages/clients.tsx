@@ -35,6 +35,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
 import type { Client } from "../api/types";
 import { CreatePurchaseDialog } from "../components/CreatePurchaseDialog";
+import { ClearBonusesDialog } from "../components/ClearBonusesDialog";
 
 export default function ClientsPage() {
   const navigate = useNavigate();
@@ -155,12 +156,15 @@ export default function ClientsPage() {
             {t("navigation.clients") || "Clients"}
           </h1>
         </div>
-        {canCreateClients && (
-          <Button onClick={() => navigate("/clients/create")}>
-            <Plus className="mr-2 h-4 w-4" />
-            {t("actions.create") || "Create Client"}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <ClearBonusesDialog onSuccess={() => refetch()} />
+          {canCreateClients && (
+            <Button onClick={() => navigate("/clients/create")}>
+              <Plus className="mr-2 h-4 w-4" />
+              {t("actions.create") || "Create Client"}
+            </Button>
+          )}
+        </div>
       </div>
 
       <Card>
@@ -234,15 +238,21 @@ export default function ClientsPage() {
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {client.stores && client.stores.length > 0 ? (
-                            client.stores.map((store: any) => (
-                              <Badge
-                                key={store.id}
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                {store.name}: {store.current_bonuses}
-                              </Badge>
-                            ))
+                            client.stores.map(
+                              (store: {
+                                id: number;
+                                name: string;
+                                current_bonuses: number;
+                              }) => (
+                                <Badge
+                                  key={store.id}
+                                  variant="outline"
+                                  className="text-xs"
+                                >
+                                  {store.name}: {store.current_bonuses}
+                                </Badge>
+                              ),
+                            )
                           ) : (
                             <span className="text-muted-foreground text-sm">
                               {t("forms.no_bonuses") || "No bonuses"}

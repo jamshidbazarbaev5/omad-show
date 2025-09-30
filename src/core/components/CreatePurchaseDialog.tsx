@@ -43,7 +43,7 @@ export function CreatePurchaseDialog({
   const { data: currentUser } = useCurrentUser();
   const { mutate: createPurchase } = useCreatePurchase();
 
-  // Only fetch stores if user is superadmin
+  // Fetch stores for superadmin and store_admin
   const { data: storesData, isLoading: storesLoading } = useGetStores({
     params: { page_size: 100 }, // Get all stores
   });
@@ -52,6 +52,23 @@ export function CreatePurchaseDialog({
     ? storesData
     : storesData?.results || [];
   const isSuperAdmin = currentUser?.role === "superadmin";
+  const isStoreAdmin = currentUser?.role === "store_admin";
+
+  // Check if purchase button should be shown
+  const canShowPurchaseButton =
+    currentUser?.role === "superadmin" || currentUser?.role === "store_admin";
+
+  // Filter available stores based on role and can_purchase
+  const availableStores = stores.filter((store) => {
+    if (isSuperAdmin) {
+      // Superadmin can see all stores but should disable ones where can_purchase is false
+      return true;
+    } else if (isStoreAdmin) {
+      // Store admin can only see their own store if it has can_purchase true
+      return store.id === currentUser?.store?.id && store.can_purchase;
+    }
+    return false;
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,8 +83,8 @@ export function CreatePurchaseDialog({
       return;
     }
 
-    // For superadmin, store selection is required
-    if (isSuperAdmin && !selectedStore) {
+    // For superadmin and store_admin, store selection is required
+    if ((isSuperAdmin || isStoreAdmin) && !selectedStore) {
       toast.error(
         t("messages.error.store_required") || "Please select a store",
       );
@@ -86,11 +103,11 @@ export function CreatePurchaseDialog({
     };
 
     // Add store to the request based on user role
-    if (isSuperAdmin && selectedStore) {
+    if ((isSuperAdmin || isStoreAdmin) && selectedStore) {
       purchaseData.store = parseInt(selectedStore);
     } else if (currentUser?.store) {
       // For non-superadmin users, use their assigned store
-      purchaseData.store = currentUser.store;
+      purchaseData.store = currentUser.store.id;
     }
 
     createPurchase(purchaseData, {
@@ -123,6 +140,11 @@ export function CreatePurchaseDialog({
       setSelectedStore("");
     }
   };
+
+  // Don't show purchase button if user doesn't have permission
+  if (!canShowPurchaseButton) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -159,7 +181,7 @@ export function CreatePurchaseDialog({
               </div>
             </div>
 
-            {isSuperAdmin && (
+            {(isSuperAdmin || isStoreAdmin) && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="store" className="text-right">
                   {t("forms.store") || "Store"} *
@@ -180,9 +202,20 @@ export function CreatePurchaseDialog({
                       />
                     </SelectTrigger>
                     <SelectContent>
-                      {stores.map((store) => (
-                        <SelectItem key={store.id} value={store.id.toString()}>
-                          {store.name}
+                      {availableStores.map((store) => (
+                        <SelectItem
+                          key={store.id}
+                          value={store.id.toString()}
+                          disabled={isSuperAdmin && !store.can_purchase}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span>{store.name}</span>
+                            {isSuperAdmin && !store.can_purchase && (
+                              <span className="text-xs text-muted-foreground ml-2">
+                                (Disabled)
+                              </span>
+                            )}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -227,7 +260,7 @@ export function CreatePurchaseDialog({
               disabled={
                 isSubmitting ||
                 !amount ||
-                (isSuperAdmin && !selectedStore) ||
+                ((isSuperAdmin || isStoreAdmin) && !selectedStore) ||
                 storesLoading
               }
               className="bg-green-600 hover:bg-green-700"

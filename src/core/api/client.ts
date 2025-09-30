@@ -6,6 +6,7 @@ import type { Client } from "./types";
 const ENDPOINTS = {
   CLIENTS: "/clients/",
   CLIENT_DETAIL: (id: number) => `/clients/${id}/`,
+  CLEAR_BONUSES: "/clients/clear-bonuses/",
 };
 
 // API functions
@@ -46,6 +47,13 @@ export const updateClient = async (id: number, client: Partial<Client>) => {
 
 export const deleteClient = async (id: number) => {
   const response = await api.delete(ENDPOINTS.CLIENT_DETAIL(id));
+  return response.data;
+};
+
+export const clearClientBonuses = async (storeId: number) => {
+  const response = await api.post(ENDPOINTS.CLEAR_BONUSES, {
+    store_id: storeId,
+  });
   return response.data;
 };
 
@@ -99,6 +107,17 @@ export const useDeleteClient = () => {
 
   return useMutation({
     mutationFn: deleteClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+    },
+  });
+};
+
+export const useClearClientBonuses = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: clearClientBonuses,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
     },

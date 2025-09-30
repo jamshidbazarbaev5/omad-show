@@ -7,6 +7,8 @@ export interface Store {
   id: number;
   name: string;
   address: string;
+  created_at?: string;
+  can_purchase?: boolean;
 }
 
 export interface Employee {
@@ -14,11 +16,10 @@ export interface Employee {
   phone_number: string;
   full_name: string;
   role: "superadmin" | "store_admin" | "seller";
-  store:{
+  store: {
     id: number;
     name: string;
     address: string;
-
   };
   password?: string;
   store_read?: {
@@ -83,6 +84,11 @@ export interface Client {
   id?: number;
   phone_number: string;
   full_name: string;
+  stores?: {
+    id: number;
+    name: string;
+    current_bonuses: number;
+  }[];
 }
 
 export interface Purchase {
