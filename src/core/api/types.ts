@@ -115,6 +115,8 @@ export interface Participant {
 export interface GameParticipants {
   game_status: string;
   participants_count: number;
+  next: string | null;
+  previous: string | null;
   participants: Participant[];
 }
 
@@ -137,5 +139,7 @@ export interface Winner {
 export interface GameWinners {
   game: string;
   total_winners: number;
+  next: string | null;
+  previous: string | null;
   winners: Winner[];
 }

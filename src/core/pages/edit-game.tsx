@@ -48,10 +48,13 @@ export default function EditGamePage() {
   const { data: currentUser, isLoading: userLoading } = useCurrentUser();
   const { data: storesData, isLoading: storesLoading } = useGetStores();
   const { data: gameData, isLoading: gameLoading } = useGetGame(Number(id));
+  const [participantsPage, setParticipantsPage] = useState<number>(1);
   const { data: participantsData, isLoading: participantsLoading } =
-    useGetGameParticipants(Number(id));
+    useGetGameParticipants(Number(id), participantsPage);
+  const [winnersPage, setWinnersPage] = useState<number>(1);
   const { data: winnersData, isLoading: winnersLoading } = useGetGameWinners(
     Number(id),
+    winnersPage,
   );
   const [prizes, setPrizes] = useState<Prize[]>([]);
 
@@ -63,7 +66,7 @@ export default function EditGamePage() {
   const { mutate: updateGame, isPending: isUpdating } = useUpdateGame();
 
   const isSuperAdmin = currentUser?.role === "superadmin";
-  const userStore = currentUser?.store;
+  const userStore = currentUser?.store.id;
 
   const {
     register,
@@ -492,203 +495,420 @@ export default function EditGamePage() {
         )}
       </form>
 
-      {/* Participants Section */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 mt-8">
-        <h2 className="text-lg font-semibold mb-4">
-          {t("forms.participants") || "Game Participants"}
-        </h2>
+      {/* Data Sections */}
+      <div className="bg-white rounded-lg shadow-sm border p-6 mt-8"
+      >
 
-        {participantsLoading ? (
-          <div className="flex justify-center items-center h-32">
-            <div className="text-gray-500">
-              {t("forms.loading") || "Loading participants..."}
-            </div>
+
+
+        {/* Participants Section */}
+        <div className="mb-8">
+          <div className="flex items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-700">
+              {t("forms.participants") || "Game Participants"}
+            </h3>
           </div>
-        ) : participantsData && participantsData.participants.length > 0 ? (
-          <>
-            <div className="mb-4 flex flex-wrap gap-4 text-sm">
-              <div className="bg-blue-100 px-3 py-1 rounded">
-                <span className="font-medium">
-                  {t("status.game_status") || "Status"}:
-                </span>
-                <span className="ml-1 capitalize">
-                  {participantsData.game_status}
-                </span>
-              </div>
-              <div className="bg-green-100 px-3 py-1 rounded">
-                <span className="font-medium">
-                  {t("status.total_participants") || "Total Participants"}:
-                </span>
-                <span className="ml-1">
-                  {participantsData.participants_count}
+
+          {participantsLoading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                <span className="text-gray-500">
+                  {t("forms.loading") || "Loading participants..."}
                 </span>
               </div>
             </div>
+          ) : participantsData && participantsData.participants.length > 0 ? (
+            <>
+              <div className="mb-4 flex flex-wrap gap-4 text-sm">
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.id") || "ID"}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.full_name") || "Full Name"}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.phone_number") || "Phone Number"}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.total_bonuses") || "Total Bonuses"}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {participantsData.participants.map((participant) => (
-                    <tr key={participant.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {participant.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {participant.full_name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {participant.phone_number}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                          {participant.total_bonuses}
-                        </span>
-                      </td>
+                <div className="bg-green-100 px-3 py-1 rounded">
+                  <span className="font-medium">
+                    {t("status.total_participants") || "Total Participants"}:
+                  </span>
+                  <span className="ml-1">
+                    {participantsData.participants_count}
+                  </span>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto relative">
+                {participantsLoading && (
+                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                      <span className="text-gray-600">
+                        {t("forms.loading") || "Loading..."}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.id") || "ID"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.full_name") || "Full Name"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.phone_number") || "Phone Number"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.total_bonuses") || "Total Bonuses"}
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-8">
-            <div className="text-gray-500 mb-2">
-              {t("messages.no_participants") || "No participants found"}
-            </div>
-            <p className="text-sm text-gray-400">
-              {t("messages.participants_info") ||
-                "Participants will appear here once they join the game"}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Winners Section */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 mt-8">
-        <h2 className="text-lg font-semibold mb-4">
-          {t("forms.winners") || "Game Winners"}
-        </h2>
-
-        {winnersLoading ? (
-          <div className="flex justify-center items-center h-32">
-            <div className="text-gray-500">
-              {t("forms.loading") || "Loading winners..."}
-            </div>
-          </div>
-        ) : winnersData && winnersData.winners.length > 0 ? (
-          <>
-            <div className="mb-4 flex flex-wrap gap-4 text-sm">
-              <div className="bg-purple-100 px-3 py-1 rounded">
-                <span className="font-medium">
-                  {t("status.game_name") || "Game"}:
-                </span>
-                <span className="ml-1">{winnersData.game}</span>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {participantsData.participants.map((participant) => (
+                      <tr key={participant.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {participant.id}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {participant.full_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {participant.phone_number}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                            {participant.total_bonuses}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div className="bg-green-100 px-3 py-1 rounded">
-                <span className="font-medium">
-                  {t("status.total_winners") || "Total Winners"}:
-                </span>
-                <span className="ml-1">{winnersData.total_winners}</span>
+
+              {/* Pagination Controls */}
+              {(participantsData.previous !== null ||
+                participantsData.next !== null) && (
+                <div className="mt-6 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setParticipantsPage(participantsPage - 1)}
+                      disabled={
+                        participantsData.previous === null ||
+                        participantsLoading
+                      }
+                      className={`px-4 py-2 text-sm font-medium rounded-md ${
+                        participantsData.previous !== null &&
+                        !participantsLoading
+                          ? "bg-blue-500 text-white hover:bg-blue-600"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
+                    >
+                      {t("pagination.previous") || "← Previous"}
+                    </button>
+                    {participantsPage > 1 && (
+                      <button
+                        onClick={() => setParticipantsPage(1)}
+                        className="px-3 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                      >
+                        {t("pagination.first_page") || "First"}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="text-sm text-gray-600 flex items-center gap-4">
+                    <span>
+                      {t("pagination.showing_participants", {
+                        start:
+                          (participantsPage - 1) *
+                            participantsData.participants.length +
+                          1,
+                        end:
+                          (participantsPage - 1) *
+                            participantsData.participants.length +
+                          participantsData.participants.length,
+                        total: participantsData.participants_count,
+                      }) ||
+                        `Showing ${(participantsPage - 1) * participantsData.participants.length + 1}-${(participantsPage - 1) * participantsData.participants.length + participantsData.participants.length} of ${participantsData.participants_count}`}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs">
+                        {t("pagination.page") || "Page"}:
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        value={participantsPage}
+                        onChange={(e) => {
+                          const page = parseInt(e.target.value);
+                          if (page >= 1) {
+                            setParticipantsPage(page);
+                          }
+                        }}
+                        className="w-12 px-1 py-1 text-xs border border-gray-300 rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                    <span className="capitalize text-xs">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          participantsData.game_status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {participantsData.game_status}
+                      </span>
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => setParticipantsPage(participantsPage + 1)}
+                    disabled={
+                      participantsData.next === null || participantsLoading
+                    }
+                    className={`px-4 py-2 text-sm font-medium rounded-md ${
+                      participantsData.next !== null && !participantsLoading
+                        ? "bg-blue-500 text-white hover:bg-blue-600"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
+                    {t("pagination.next") || "Next →"}
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <div className="max-w-sm mx-auto">
+                <div className="text-6xl mb-4">👥</div>
+                <div className="text-gray-500 mb-2 text-lg font-medium">
+                  {t("messages.no_participants") || "No participants found"}
+                </div>
+                <p className="text-sm text-gray-400">
+                  {t("messages.participants_info") ||
+                    "Participants will appear here once they join the game"}
+                </p>
+                {participantsData?.game_status === "active" && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-700">
+                      {t("messages.game_active_hint") ||
+                        "The game is active and ready to accept participants"}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
+          )}
+        </div>
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.id") || "ID"}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.winner") || "Winner"}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.phone_number") || "Phone Number"}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.prize") || "Prize"}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.prize_type") || "Prize Type"}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t("table.awarded_at") || "Awarded At"}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {winnersData.winners.map((winner) => (
-                    <tr key={winner.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {winner.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {winner.client.full_name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {winner.client.phone_number}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex items-center">
-                          {winner.prize.image && (
-                            <img
-                              src={winner.prize.image}
-                              alt={winner.prize.name}
-                              className="w-8 h-8 rounded-full mr-3 object-cover"
-                            />
-                          )}
-                          <span>{winner.prize.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            winner.prize.type === "money"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-blue-100 text-blue-800"
-                          }`}
-                        >
-                          {winner.prize.type === "money"
-                            ? t("prize_types.money") || "Money"
-                            : t("prize_types.item") || "Item"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(winner.awarded_at).toLocaleString()}
-                      </td>
+        {/* Divider */}
+        <div className="border-t border-gray-200 my-8"></div>
+
+        {/* Winners Section */}
+        <div>
+          <div className="flex items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-700">
+              {t("forms.winners") || "Game Winners"}
+            </h3>
+          </div>
+
+          {winnersLoading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                <span className="text-gray-500">
+                  {t("forms.loading") || "Loading winners..."}
+                </span>
+              </div>
+            </div>
+          ) : winnersData && winnersData.winners.length > 0 ? (
+            <>
+              <div className="mb-4 flex flex-wrap gap-4 text-sm">
+                <div className="bg-purple-100 px-3 py-1 rounded">
+                  <span className="font-medium">
+                    {t("status.game_name") || "Game"}:
+                  </span>
+                  <span className="ml-1">{winnersData.game}</span>
+                </div>
+                <div className="bg-green-100 px-3 py-1 rounded">
+                  <span className="font-medium">
+                    {t("status.total_winners") || "Total Winners"}:
+                  </span>
+                  <span className="ml-1">{winnersData.total_winners}</span>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto relative">
+                {winnersLoading && (
+                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                      <span className="text-gray-600">
+                        {t("forms.loading") || "Loading..."}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.id") || "ID"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.winner") || "Winner"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.phone_number") || "Phone Number"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.prize") || "Prize"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.prize_type") || "Prize Type"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {t("table.awarded_at") || "Awarded At"}
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {winnersData.winners.map((winner) => (
+                      <tr key={winner.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {winner.id}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {winner.client.full_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {winner.client.phone_number}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="flex items-center">
+                            {winner.prize.image && (
+                              <img
+                                src={winner.prize.image}
+                                alt={winner.prize.name}
+                                className="w-8 h-8 rounded-full mr-3 object-cover"
+                              />
+                            )}
+                            <span>{winner.prize.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${
+                              winner.prize.type === "money"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
+                            {winner.prize.type === "money"
+                              ? t("prize_types.money") || "Money"
+                              : t("prize_types.item") || "Item"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {new Date(winner.awarded_at).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Winners Pagination Controls */}
+              {(winnersData.previous !== null || winnersData.next !== null) && (
+                <div className="mt-6 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setWinnersPage(winnersPage - 1)}
+                      disabled={winnersData.previous === null || winnersLoading}
+                      className={`px-4 py-2 text-sm font-medium rounded-md ${
+                        winnersData.previous !== null && !winnersLoading
+                          ? "bg-blue-500 text-white hover:bg-blue-600"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
+                    >
+                      {t("pagination.previous") || "← Previous"}
+                    </button>
+                    {winnersPage > 1 && (
+                      <button
+                        onClick={() => setWinnersPage(1)}
+                        className="px-3 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                      >
+                        {t("pagination.first_page") || "First"}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="text-sm text-gray-600 flex items-center gap-4">
+                    <span>
+                      {t("pagination.showing_winners", {
+                        start:
+                          (winnersPage - 1) * winnersData.winners.length + 1,
+                        end:
+                          (winnersPage - 1) * winnersData.winners.length +
+                          winnersData.winners.length,
+                        total: winnersData.total_winners,
+                      }) ||
+                        `Showing ${(winnersPage - 1) * winnersData.winners.length + 1}-${(winnersPage - 1) * winnersData.winners.length + winnersData.winners.length} of ${winnersData.total_winners}`}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs">
+                        {t("pagination.page") || "Page"}:
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        value={winnersPage}
+                        onChange={(e) => {
+                          const page = parseInt(e.target.value);
+                          if (page >= 1) {
+                            setWinnersPage(page);
+                          }
+                        }}
+                        className="w-12 px-1 py-1 text-xs border border-gray-300 rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded font-medium">
+                      {winnersData.game}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => setWinnersPage(winnersPage + 1)}
+                    disabled={winnersData.next === null || winnersLoading}
+                    className={`px-4 py-2 text-sm font-medium rounded-md ${
+                      winnersData.next !== null && !winnersLoading
+                        ? "bg-blue-500 text-white hover:bg-blue-600"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
+                    {t("pagination.next") || "Next →"}
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <div className="max-w-sm mx-auto">
+                <div className="text-6xl mb-4">🏆</div>
+                <div className="text-gray-500 mb-2 text-lg font-medium">
+                  {t("messages.no_winners") || "No winners found"}
+                </div>
+                <p className="text-sm text-gray-400">
+                  {t("messages.winners_info") ||
+                    "Winners will appear here once the game draws are completed"}
+                </p>
+                <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
+                  <p className="text-sm text-yellow-700">
+                    {t("messages.draw_hint") ||
+                      "Complete the game draw to see winners here"}
+                  </p>
+                </div>
+              </div>
             </div>
-          </>
-        ) : (
-          <div className="text-center py-8">
-            <div className="text-gray-500 mb-2">
-              {t("messages.no_winners") || "No winners found"}
-            </div>
-            <p className="text-sm text-gray-400">
-              {t("messages.winners_info") ||
-                "Winners will appear here once the game draws are completed"}
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

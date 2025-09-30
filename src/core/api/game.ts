@@ -162,11 +162,13 @@ export const useLockGame = () => {
 };
 
 // Get Game Participants API
-export const useGetGameParticipants = (gameId: number) => {
+export const useGetGameParticipants = (gameId: number, page?: number) => {
   return useQuery<GameParticipants, Error>({
-    queryKey: ["game-participants", gameId],
+    queryKey: ["game-participants", gameId, page],
     queryFn: async () => {
-      const response = await api.get(`${GAME_URL}${gameId}/participants/`);
+      const params = page ? `?page=${page}` : "";
+      const url = `${GAME_URL}${gameId}/participants/${params}`;
+      const response = await api.get(url);
       return response.data;
     },
     enabled: !!gameId,
@@ -174,11 +176,13 @@ export const useGetGameParticipants = (gameId: number) => {
 };
 
 // Get Game Winners API
-export const useGetGameWinners = (gameId: number) => {
+export const useGetGameWinners = (gameId: number, page?: number) => {
   return useQuery<GameWinners, Error>({
-    queryKey: ["game-winners", gameId],
+    queryKey: ["game-winners", gameId, page],
     queryFn: async () => {
-      const response = await api.get(`${GAME_URL}${gameId}/winners/`);
+      const params = page ? `?page=${page}` : "";
+      const url = `${GAME_URL}${gameId}/winners/${params}`;
+      const response = await api.get(url);
       return response.data;
     },
     enabled: !!gameId,
