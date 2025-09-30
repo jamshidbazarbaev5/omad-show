@@ -76,7 +76,7 @@ export default function CreateGamePage() {
   const { mutate: createGame, isPending: isCreating } = useCreateGame();
 
   const isSuperAdmin = currentUser?.role === "superadmin";
-  const userStore = currentUser?.store;
+  const userStore = currentUser?.store.id;
 
   const {
     register,

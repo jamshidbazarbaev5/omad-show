@@ -37,7 +37,7 @@ export default function EditPrizePage() {
   }
 
   const isSuperAdmin = currentUser.role === "superadmin";
-  const userStoreId = currentUser.store;
+  const userStoreId = currentUser.store.id;
 
   // Filter games based on user role
   const availableGames = isSuperAdmin

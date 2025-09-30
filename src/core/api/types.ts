@@ -69,11 +69,10 @@ export interface Prize {
 
 export interface BonusRange {
   id?: number;
-  store: number;
   min_amount: number;
   max_amount: number;
   bonus_points: number;
-  store_read?: {
+  store: {
     id: number;
     name: string;
     address: string;

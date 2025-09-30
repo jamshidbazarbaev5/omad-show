@@ -16,9 +16,6 @@ import EditGamePage from "./core/pages/edit-game";
 import PrizesPage from "./core/pages/prizes";
 import CreatePrizePage from "./core/pages/create-prize";
 import EditPrizePage from "./core/pages/edit-prize";
-import BonusRangesPage from "./core/pages/bonus-ranges";
-import CreateBonusRangePage from "./core/pages/create-bonus-range";
-import EditBonusRangePage from "./core/pages/edit-bonus-range";
 import Dashboard from "./core/pages/dashboard";
 import ClientsPage from "./core/pages/clients";
 import CreateClientPage from "./core/pages/create-client";
@@ -60,15 +57,7 @@ function App() {
             <Route path="/prizes" element={<PrizesPage />} />
             <Route path="/prizes/create" element={<CreatePrizePage />} />
             <Route path="/prizes/:id/edit" element={<EditPrizePage />} />
-            <Route path="/bonus-ranges" element={<BonusRangesPage />} />
-            <Route
-              path="/bonus-ranges/create"
-              element={<CreateBonusRangePage />}
-            />
-            <Route
-              path="/bonus-ranges/:id/edit"
-              element={<EditBonusRangePage />}
-            />
+
             <Route path="/clients" element={<ClientsPage />} />
             <Route path="/clients/create" element={<CreateClientPage />} />
             <Route path="/clients/:id/edit" element={<EditClientPage />} />

@@ -106,7 +106,8 @@ export default function CreateEmployeePage() {
   const handleSubmit = (data: Partial<Employee>) => {
     // If store_admin, automatically set store to current user's store
     if (currentUser?.role === "store_admin") {
-      data.store = currentUser.store;
+      // @ts-ignore
+      data.store.id = currentUser.store.id;
     }
 
     // Validate store requirement based on role
