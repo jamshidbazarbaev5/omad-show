@@ -7,11 +7,26 @@ import {
   useActivateGame,
   useLockGame,
 } from "../api/game";
+import { useGetStores } from "../api/store";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
 import type { Game } from "../api/types";
-import { Play, Lock, Unlock, Edit, Trash2, MoreVertical } from "lucide-react";
+import {
+  Play,
+  Lock,
+  Unlock,
+  Edit,
+  Trash2,
+  MoreVertical,
+} from "lucide-react";
 import { Button } from "../../components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,21 +34,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
-import {useState} from "react";
+import { useState, useEffect } from "react";
 
 export default function GamesPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedStore, setSelectedStore] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+
   const { data: currentUser } = useCurrentUser();
-  const { data: gamesData, isLoading, refetch } = useGetGames({params:{
-    page:page
-    }});
+  const { data: storesData } = useGetStores();
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const {
+    data: gamesData,
+    isLoading,
+    refetch,
+  } = useGetGames({
+    params: {
+      search: debouncedSearch,
+      store: selectedStore,
+      status: selectedStatus,
+    },
+  });
   const { mutate: deleteGame } = useDeleteGame();
   const { mutate: activateGame } = useActivateGame();
   const { mutate: lockGame } = useLockGame();
 
-  const totalCount = Array.isArray(gamesData) ? gamesData.length : gamesData?.count || 0;
+  const totalCount = Array.isArray(gamesData)
+    ? gamesData.length
+    : gamesData?.count || 0;
   const handleActivateGame = (gameId: number) => {
     activateGame(gameId, {
       onSuccess: () => {
@@ -71,7 +112,7 @@ export default function GamesPage() {
       ? [
           {
             header: t("forms.store_name") || "Store",
-            accessorKey: (row:any) => row.store.name,
+            accessorKey: (row: any) => row.store.name,
           },
         ]
       : []),
@@ -196,9 +237,23 @@ export default function GamesPage() {
     );
   }
   const games = Array.isArray(gamesData) ? gamesData : gamesData?.results || [];
+  const stores = Array.isArray(storesData)
+    ? storesData
+    : storesData?.results || [];
 
-  // @ts-ignore
-  // @ts-ignore
+  const statusOptions = [
+    { value: "draft", label: t("status.draft") || "Draft" },
+    { value: "active", label: t("status.active") || "Active" },
+    { value: "locked", label: t("status.locked") || "Locked" },
+    { value: "finished", label: t("status.finished") || "Finished" },
+  ];
+
+  const handleClearFilters = () => {
+    setSelectedStore("");
+    setSelectedStatus("");
+    setPage(1);
+  };
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
@@ -206,6 +261,83 @@ export default function GamesPage() {
           <h1 className="text-2xl font-bold">
             {t("navigation.games") || "Games"}
           </h1>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Search */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={t("placeholders.search_employee")}
+              className="w-full p-2 border rounded"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          {/* Store Filter - Only show for superadmin */}
+          {isSuperAdmin && (
+            <Select
+              value={selectedStore}
+              onValueChange={(value) => {
+                setSelectedStore(value === "all" ? "" : value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={t("forms.select_store") || "Select store"}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {t("forms.all_stores") || "All stores"}
+                </SelectItem>
+                {stores.map((store: any) => (
+                  <SelectItem key={store.id} value={store.id.toString()}>
+                    {store.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {/* Status Filter */}
+          <Select
+            value={selectedStatus}
+            onValueChange={(value) => {
+              setSelectedStatus(value === "all" ? "" : value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue
+                placeholder={t("forms.select_status") || "Select status"}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                {t("forms.all_statuses") || "All statuses"}
+              </SelectItem>
+              {statusOptions.map((status) => (
+                <SelectItem key={status.value} value={status.value}>
+                  {status.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Clear Filters */}
+          <Button
+            variant="outline"
+            onClick={handleClearFilters}
+            className="w-full"
+          >
+            {t("actions.clear_filters") || "Clear Filters"}
+          </Button>
         </div>
       </div>
 
@@ -241,36 +373,35 @@ export default function GamesPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                {game.status !== 'finished' && (
-                    <DropdownMenuItem onClick={() => handleStartGame(game)}>
-                      <Play className="h-4 w-4 mr-2" />
-                      {t('status.play')}
-                    </DropdownMenuItem>
+                {game.status !== "finished" && (
+                  <DropdownMenuItem onClick={() => handleStartGame(game)}>
+                    <Play className="h-4 w-4 mr-2" />
+                    {t("status.play")}
+                  </DropdownMenuItem>
                 )}
 
                 <DropdownMenuItem onClick={() => handleEdit(game)}>
                   <Edit className="h-4 w-4 mr-2" />
-                  {t('status.edit')}
+                  {t("status.edit")}
                 </DropdownMenuItem>
-                {game.status !== 'finished' && (
-                    <DropdownMenuItem
-                        onClick={() => game.id && handleActivateGame(game.id)}
-                        className="text-green-600 hover:text-green-700"
-                    >
-                      <Unlock className="h-4 w-4 mr-2" />
-                      {t('status.activate')}
-                    </DropdownMenuItem>
+                {game.status !== "finished" && (
+                  <DropdownMenuItem
+                    onClick={() => game.id && handleActivateGame(game.id)}
+                    className="text-green-600 hover:text-green-700"
+                  >
+                    <Unlock className="h-4 w-4 mr-2" />
+                    {t("status.activate")}
+                  </DropdownMenuItem>
                 )}
-                {game.status !== 'finished' && (
-                    <DropdownMenuItem
-                        onClick={() => game.id && handleLockGame(game.id)}
-                        className="text-orange-600 hover:text-orange-700"
-                    >
-                      <Lock className="h-4 w-4 mr-2" />
-                      {t('status.lock')}
-                    </DropdownMenuItem>
-                )
-                }
+                {game.status !== "finished" && (
+                  <DropdownMenuItem
+                    onClick={() => game.id && handleLockGame(game.id)}
+                    className="text-orange-600 hover:text-orange-700"
+                  >
+                    <Lock className="h-4 w-4 mr-2" />
+                    {t("status.lock")}
+                  </DropdownMenuItem>
+                )}
 
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -278,7 +409,7 @@ export default function GamesPage() {
                   variant="destructive"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  {t('status.delete')}
+                  {t("status.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

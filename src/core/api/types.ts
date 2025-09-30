@@ -14,7 +14,12 @@ export interface Employee {
   phone_number: string;
   full_name: string;
   role: "superadmin" | "store_admin" | "seller";
-  store?: number;
+  store:{
+    id: number;
+    name: string;
+    address: string;
+
+  };
   password?: string;
   store_read?: {
     id: number;

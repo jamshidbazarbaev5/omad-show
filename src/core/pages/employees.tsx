@@ -109,7 +109,11 @@ export default function EmployeesPage() {
   const canManageEmployees =
     currentUser?.role === "superadmin" || currentUser?.role === "store_admin";
 
-  const { data: employeesData, isLoading } = useGetEmployees({});
+  const { data: employeesData, isLoading } = useGetEmployees({
+    params:{
+      search: searchTerm,
+    }
+  });
 
   const { data: storesData } = useGetStores({});
 
@@ -125,7 +129,7 @@ export default function EmployeesPage() {
   if (currentUser?.role === "store_admin") {
     // Store admin can only see employees from their store
     filteredEmployees = employees.filter(
-      (emp) => emp.store === currentUser.store,
+      (emp) => emp.store.id === currentUser.store.id,
     );
   }
 
@@ -150,7 +154,7 @@ export default function EmployeesPage() {
     // Store admin can only edit sellers from their store
     if (
       currentUser?.role === "store_admin" &&
-      (employee.role !== "seller" || employee.store !== currentUser.store)
+      (employee.role !== "seller" || employee.store.id !== currentUser.store.id)
     ) {
       toast.error(t("messages.error.unauthorized"));
       return;
@@ -168,7 +172,8 @@ export default function EmployeesPage() {
 
     // If store_admin, automatically set store to current user's store
     if (currentUser?.role === "store_admin") {
-      updateData.store = currentUser.store;
+      // @ts-ignore
+      updateData.store.id = currentUser.store.id;
     }
 
     updateEmployee(updateData as Employee, {
@@ -197,7 +202,7 @@ export default function EmployeesPage() {
     // Store admin can only delete sellers from their store
     if (
       currentUser?.role === "store_admin" &&
-      (employee?.role !== "seller" || employee?.store !== currentUser.store)
+      (employee?.role !== "seller" || employee?.store.id !== currentUser.store.id)
     ) {
       toast.error(t("messages.error.unauthorized"));
       return;

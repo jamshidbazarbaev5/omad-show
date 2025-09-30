@@ -247,9 +247,8 @@ export default function GameDrawPage() {
   const [drawError, setDrawError] = useState<string | null>(null);
   const [_clients, setClients] = useState<Client[]>([]);
   const [winners, setWinners] = useState<GameWinner[]>([]);
-  const [gameFinishedMessage, setGameFinishedMessage] = useState<string | null>(
-    null,
-  );
+
+  const [isLastPrize, setIsLastPrize] = useState<boolean>(false);
 
   // API Mutations
   const { mutate: startGame, isPending: isStarting } = useStartGame();
@@ -270,10 +269,7 @@ export default function GameDrawPage() {
           if ("winners" in data) {
             setWinners(data.winners || []);
           }
-          // Set finish message if available
-          if ("message" in data) {
-            setGameFinishedMessage(data.message || null);
-          }
+
         },
         onError: () => {
           toast.error(t("messages.error.game_not_found"));
@@ -305,13 +301,16 @@ export default function GameDrawPage() {
               : null,
           );
 
+          // Check if this is the last prize
+          if (data.is_last_prize !== undefined) {
+            setIsLastPrize(data.is_last_prize);
+          }
+
           // Check if game is finished and handle winners
           if (data.winners) {
             setWinners(data.winners);
           }
-          if (data.message) {
-            setGameFinishedMessage(data.message);
-          }
+
 
           setShowConfetti(true);
           setShowWinnerEffects(true);
@@ -346,15 +345,35 @@ export default function GameDrawPage() {
     setDrawError(null);
 
     nextPrize(gameId, {
-      onSuccess: (data) => {
-        setGameState((prev) =>
-          prev
-            ? {
-                ...prev,
-                current_prize: data.current_prize,
-              }
-            : null,
-        );
+      onSuccess: (data:any) => {
+        // If this was the last prize, the game is now finished
+        if (isLastPrize) {
+          // Set winners from the response
+          if (data.winners) {
+            setWinners(data.winners);
+          }
+
+          // Set current_prize to null to trigger GameOverScreen
+          setGameState((prev:any) =>
+            prev
+              ? {
+                  ...prev,
+                  current_prize: null,
+                }
+              : null,
+          );
+        } else {
+          // Normal next prize flow
+          setGameState((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  current_prize: data.current_prize,
+                }
+              : null,
+          );
+        }
+        setIsLastPrize(false);
       },
       onError: () => toast.error(t("lottery.next_prize")),
     });
@@ -387,12 +406,7 @@ export default function GameDrawPage() {
     );
   }
 
-  const {
-    game,
-    current_prize,
-    participating_clients_count,
-    eligible_clients_count,
-  } = gameState;
+  const { game, current_prize, eligible_clients_count } = gameState;
   const isGameOver = !current_prize;
   const prizeTheme = current_prize ? getPrizeTheme(current_prize, t) : null;
   const isGameFinished = game.status === "finished" || winners.length > 0;
@@ -462,8 +476,6 @@ export default function GameDrawPage() {
               {game.name}
             </h1>
             <div className="space-y-2">
-
-
               {/* Show detailed client info when there's a mismatch */}
               {/*{participating_clients_count > 0 &&*/}
               {/*  eligible_clients_count !== participating_clients_count && (*/}
@@ -533,7 +545,7 @@ export default function GameDrawPage() {
             {drawError ? (
               <ErrorDisplay error={drawError} onBack={handleBackToGames} />
             ) : isGameOver ? (
-              <GameOverScreen onBack={handleBackToGames} />
+              <GameOverScreen onBack={handleBackToGames} winners={winners} />
             ) : isDrawing ? (
               <DrawingAnimation prizeTheme={prizeTheme} />
             ) : winner ? (
@@ -543,6 +555,7 @@ export default function GameDrawPage() {
                 isLoading={isLoadingNext}
                 hasNextPrize={!!current_prize}
                 prizeTheme={prizeTheme}
+                isLastPrize={isLastPrize}
               />
             ) : (
               <PrizeDisplay
@@ -558,15 +571,7 @@ export default function GameDrawPage() {
           </AnimatePresence>
         </div>
 
-        {/* Right Sidebar - Winners */}
-        {isGameFinished && (
-          <div className="w-80 pt-20 px-6 pb-6 overflow-y-auto">
-            <WinnersDisplay
-              winners={winners}
-              gameFinishedMessage={gameFinishedMessage}
-            />
-          </div>
-        )}
+
       </div>
     </div>
   );
@@ -717,11 +722,13 @@ const WinnerDisplay = ({
   isLoading,
   hasNextPrize,
   prizeTheme,
+  isLastPrize,
 }: {
   winner: Winner;
   onNext: () => void;
   isLoading: boolean;
   hasNextPrize: boolean;
+  isLastPrize: boolean;
   prizeTheme: {
     gradient: string;
     cardBorder: string;
@@ -794,7 +801,9 @@ const WinnerDisplay = ({
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-6 w-6" />
-                    {t("lottery.next_prize")}
+                    {isLastPrize
+                      ? t("lottery.finish_draw")
+                      : t("lottery.next_prize")}
                     <ArrowRight className="ml-2 h-6 w-6" />
                   </>
                 )}
@@ -1068,121 +1077,15 @@ const ErrorDisplay = ({
 //   );
 // };
 
-const WinnersDisplay = ({
+
+
+const GameOverScreen = ({
+  onBack,
   winners,
-  gameFinishedMessage,
 }: {
-  winners: GameWinner[];
-  gameFinishedMessage: string | null;
+  onBack: () => void;
+  winners?: GameWinner[];
 }) => {
-  const { t } = useTranslation();
-
-  if (winners.length === 0) return null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.8, type: "spring" }}
-      className="mb-6"
-    >
-      {gameFinishedMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4"
-        >
-          <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-lg border-2 border-yellow-400/30 rounded-xl p-4">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 text-lg font-bold text-yellow-400 mb-1">
-                <Sparkles className="h-5 w-5" />✨ Все призы распределены! ✨
-              </div>
-              <p className="text-sm text-orange-300">Спасибо за лотерею!</p>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 backdrop-blur-lg border-2 border-green-400/20 text-white shadow-xl">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-green-400" />
-            {t("lottery.winners")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {winners.map((winner, index) => (
-              <motion.div
-                key={winner.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-gradient-to-r from-green-800/20 to-emerald-800/20 p-3 rounded-lg backdrop-blur-sm border border-green-400/20"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0">
-                    <motion.div
-                      animate={{ rotate: [0, 10, -10, 0] }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        delay: index * 0.5,
-                      }}
-                    >
-                      <Crown className="h-6 w-6 text-yellow-400" />
-                    </motion.div>
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-bold text-green-300 truncate">
-                          {winner.client.full_name}
-                        </h3>
-                        <p className="text-xs text-green-400 truncate">
-                          {winner.client.phone_number}
-                        </p>
-                      </div>
-                      <div className="text-right text-xs text-gray-400 ml-2">
-                        {winner.awarded_at}
-                      </div>
-                    </div>
-
-                    <div className="bg-white/5 p-2 rounded border border-white/10">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-shrink-0">
-                          <img
-                            src={winner.prize.image}
-                            alt={winner.prize.name}
-                            className="w-8 h-8 object-cover rounded border border-yellow-400/50"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-xs font-semibold text-yellow-300 truncate">
-                            {winner.prize.name}
-                          </h4>
-                          <div className="flex items-center gap-1 text-yellow-400">
-                            <Gift className="h-3 w-3" />
-                            <span className="text-xs capitalize">
-                              {winner.prize.type}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-};
-
-const GameOverScreen = ({ onBack }: { onBack: () => void }) => {
   const { t } = useTranslation();
   return (
     <motion.div
@@ -1210,19 +1113,41 @@ const GameOverScreen = ({ onBack }: { onBack: () => void }) => {
             {t("lottery.game_complete")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col items-center space-y-6">
+        <CardContent className="flex flex-col items-center space-y-6 w-[250px]">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
             className="text-center bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/20"
           >
-            <h2 className="text-3xl font-bold mb-4">
-              {t("lottery.all_prizes_distributed")}
-            </h2>
-            <p className="text-xl text-purple-200">
-              {t("lottery.thank_you_amazing")}
-            </p>
+
+            {/* Show winners if available */}
+            {winners && winners.length > 0 && (
+              <div className="mt-6 space-y-3 max-h-64 overflow-y-auto">
+                <h3 className="text-lg font-semibold text-purple-300 mb-3">
+                  {t("lottery.winners")}
+                </h3>
+                {winners.map((winner) => (
+                  <div
+                    key={winner.id}
+                    className="bg-white/10 p-3 rounded-lg border border-purple-400/30 text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Crown className="h-5 w-5 text-yellow-400 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-purple-200 truncate">
+                          {winner.client.full_name}
+                        </div>
+                        <div className="text-purple-300 text-xs truncate">
+                          {winner.client.phone_number}
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           <motion.div

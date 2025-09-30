@@ -84,6 +84,7 @@ export interface GameDrawResponse {
     type: "item" | "money";
     image: string;
   };
+  is_last_prize?: boolean;
   winners?: Array<{
     id: number;
     prize: {

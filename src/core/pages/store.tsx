@@ -46,7 +46,9 @@ export default function StoresPage() {
   const { t } = useTranslation();
 
 
-  const { data: storesData, isLoading } = useGetStores({});
+  const { data: storesData, isLoading } = useGetStores({params:{
+    search: searchTerm
+    }});
 
   const fields = storeFields(t);
 
