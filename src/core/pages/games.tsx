@@ -11,14 +11,7 @@ import { useGetStores } from "../api/store";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
 import type { Game } from "../api/types";
-import {
-  Play,
-  Lock,
-  Unlock,
-  Edit,
-  Trash2,
-  MoreVertical,
-} from "lucide-react";
+import { Play, Lock, Unlock, Edit, Trash2, MoreVertical } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import {
   Select,
@@ -266,9 +259,9 @@ export default function GamesPage() {
 
       {/* Filters */}
       <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
-          <div className="relative">
+          <div className="relative flex-1 min-w-[200px]">
             <input
               type="text"
               placeholder={t("placeholders.search_employee")}
@@ -280,61 +273,65 @@ export default function GamesPage() {
 
           {/* Store Filter - Only show for superadmin */}
           {isSuperAdmin && (
+            <div className="min-w-[150px]">
+              <Select
+                value={selectedStore}
+                onValueChange={(value) => {
+                  setSelectedStore(value === "all" ? "" : value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={t("forms.select_store") || "Select store"}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {t("forms.all_stores") || "All stores"}
+                  </SelectItem>
+                  {stores.map((store: any) => (
+                    <SelectItem key={store.id} value={store.id.toString()}>
+                      {store.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Status Filter */}
+          <div className="min-w-[150px]">
             <Select
-              value={selectedStore}
+              value={selectedStatus}
               onValueChange={(value) => {
-                setSelectedStore(value === "all" ? "" : value);
+                setSelectedStatus(value === "all" ? "" : value);
                 setPage(1);
               }}
             >
               <SelectTrigger>
                 <SelectValue
-                  placeholder={t("forms.select_store") || "Select store"}
+                  placeholder={t("forms.select_status") || "Select status"}
                 />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
-                  {t("forms.all_stores") || "All stores"}
+                  {t("forms.all_statuses") || "All statuses"}
                 </SelectItem>
-                {stores.map((store: any) => (
-                  <SelectItem key={store.id} value={store.id.toString()}>
-                    {store.name}
+                {statusOptions.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          )}
-
-          {/* Status Filter */}
-          <Select
-            value={selectedStatus}
-            onValueChange={(value) => {
-              setSelectedStatus(value === "all" ? "" : value);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue
-                placeholder={t("forms.select_status") || "Select status"}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                {t("forms.all_statuses") || "All statuses"}
-              </SelectItem>
-              {statusOptions.map((status) => (
-                <SelectItem key={status.value} value={status.value}>
-                  {status.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          </div>
 
           {/* Clear Filters */}
           <Button
             variant="outline"
             onClick={handleClearFilters}
-            className="w-full"
+            className="whitespace-nowrap"
           >
             {t("actions.clear_filters") || "Clear Filters"}
           </Button>

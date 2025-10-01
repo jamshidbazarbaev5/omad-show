@@ -14,23 +14,6 @@ import { useGetStores } from "../api/store";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import type { Prize } from "../api/types";
 
-/**
- * Game Edit Form Data Structure
- *
- * Similar to create, but includes existing data and updates:
- *
- * Basic game fields:
- * - name: string
- * - description: string
- * - store: number (store ID)
- *
- * Prize fields (array format):
- * - prizes[0]name: string
- * - prizes[0]type: "item" | "money"
- * - prizes[0]quantity: number
- * - prizes[0]ordering: number (1-based)
- * - prizes[0]image: File (optional, only if changed)
- */
 
 interface GameFormData {
   name: string;
@@ -330,7 +313,7 @@ export default function EditGamePage() {
                 {t("forms.game_description") || "Game Description"} *
               </label>
               <textarea
-                {...register("description", { required: true })}
+                {...register("description")}
                 rows={4}
                 placeholder={
                   t("placeholders.game_description") || "Enter game description"
@@ -472,27 +455,7 @@ export default function EditGamePage() {
           </button>
         </div>
 
-        {/* Form Summary */}
-        {prizes.length > 0 && (
-          <div className="bg-blue-50 rounded-lg p-4">
-            <h3 className="font-medium text-blue-900 mb-2">
-              {t("forms.summary") || "Summary"}
-            </h3>
-            <div className="text-sm text-blue-800">
-              <p>
-                {t("summary.total_prizes", { count: prizes.length }) ||
-                  `Total Prizes: ${prizes.length}`}
-              </p>
-              <p>
-                {t("summary.prize_breakdown") || "Prize Types: "}
-                {prizes.filter((p) => p.type === "item").length}{" "}
-                {t("prize_types.items") || "items"},{" "}
-                {prizes.filter((p) => p.type === "money").length}{" "}
-                {t("prize_types.money_prizes") || "money prizes"}
-              </p>
-            </div>
-          </div>
-        )}
+
       </form>
 
       {/* Data Sections */}
@@ -892,19 +855,7 @@ export default function EditGamePage() {
             <div className="text-center py-12">
               <div className="max-w-sm mx-auto">
                 <div className="text-6xl mb-4">🏆</div>
-                <div className="text-gray-500 mb-2 text-lg font-medium">
-                  {t("messages.no_winners") || "No winners found"}
-                </div>
-                <p className="text-sm text-gray-400">
-                  {t("messages.winners_info") ||
-                    "Winners will appear here once the game draws are completed"}
-                </p>
-                <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
-                  <p className="text-sm text-yellow-700">
-                    {t("messages.draw_hint") ||
-                      "Complete the game draw to see winners here"}
-                  </p>
-                </div>
+
               </div>
             </div>
           )}

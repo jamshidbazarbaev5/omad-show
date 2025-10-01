@@ -1113,7 +1113,7 @@ const GameOverScreen = ({
             {t("lottery.game_complete")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col items-center space-y-6 w-[250px]">
+        <CardContent className="flex flex-col items-center space-y-6 w-[500px]">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}

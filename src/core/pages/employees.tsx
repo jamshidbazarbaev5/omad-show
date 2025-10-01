@@ -92,7 +92,7 @@ const columns = (t: (key: string) => string) => [
   },
   {
     header: t("forms.store"),
-    accessorKey:(row:any) => row.store.name
+    accessorKey: (row: any) => row.store.name,
   },
 ];
 
@@ -110,9 +110,9 @@ export default function EmployeesPage() {
     currentUser?.role === "superadmin" || currentUser?.role === "store_admin";
 
   const { data: employeesData, isLoading } = useGetEmployees({
-    params:{
+    params: {
       search: searchTerm,
-    }
+    },
   });
 
   const { data: storesData } = useGetStores({});
@@ -144,7 +144,9 @@ export default function EmployeesPage() {
 
   const { mutate: updateEmployee, isPending: isUpdating } = useUpdateEmployee();
   const { mutate: deleteEmployee } = useDeleteEmployee();
-  const totalCount = Array.isArray(employeesData) ? employeesData.length : employeesData?.count || 0;
+  const totalCount = Array.isArray(employeesData)
+    ? employeesData.length
+    : employeesData?.count || 0;
   const handleEdit = (employee: Employee) => {
     if (!canManageEmployees) {
       toast.error(t("messages.error.unauthorized"));
@@ -160,7 +162,14 @@ export default function EmployeesPage() {
       return;
     }
 
-    setEditingEmployee(employee);
+    // Transform employee data to match form expectations
+    const transformedEmployee = {
+      ...employee,
+      store: employee.store.id, // Convert store object to store ID
+    };
+
+    // @ts-ignore
+    setEditingEmployee(transformedEmployee);
     setIsFormOpen(true);
   };
 
@@ -202,7 +211,8 @@ export default function EmployeesPage() {
     // Store admin can only delete sellers from their store
     if (
       currentUser?.role === "store_admin" &&
-      (employee?.role !== "seller" || employee?.store.id !== currentUser.store.id)
+      (employee?.role !== "seller" ||
+        employee?.store.id !== currentUser.store.id)
     ) {
       toast.error(t("messages.error.unauthorized"));
       return;

@@ -242,25 +242,7 @@ export function PrizeForm({ prizes, onPrizesChange }: PrizeFormProps) {
                 </div>
               </div>
 
-              {/* Prize Type Indicator */}
-              <div className="mt-3 flex items-center gap-2">
-                <span
-                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    prize.type === "money"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-blue-100 text-blue-800"
-                  }`}
-                >
-                  {prize.type === "money" ? "💰" : "🎁"}
-                  {prize.type === "money"
-                    ? t("prize_types.money") || "Money Prize"
-                    : t("prize_types.item") || "Item Prize"}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {t("forms.qty_label", { quantity: prize.quantity }) ||
-                    `Qty: ${prize.quantity}`}
-                </span>
-              </div>
+
             </div>
           ))}
         </div>
